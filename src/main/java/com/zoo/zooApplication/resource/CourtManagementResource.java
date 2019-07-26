@@ -75,15 +75,6 @@ public class CourtManagementResource {
         return courtAndFieldService.addFieldToCourt(courtId, createFieldRequest);
     }
 
-    @ApiOperation(value = "find the court and its fields by field id", response = Court.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Court found and all the field belong to it including the field requested")})
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/fields/{fieldId}")
-    public Court findByFieldId(@PathParam("fieldId") String fieldId) {
-        return courtAndFieldService.findCourtByFieldId(fieldId);
-    }
-
     @ApiOperation(value = "add a new field type price to the court", response = Court.class)
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Successfully added the field price type to court")})
     @POST

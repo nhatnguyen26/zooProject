@@ -76,15 +76,6 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
     }
 
     @Override
-    public Court findCourtByFieldId(String fieldId) {
-        Optional<FieldDO> field = fieldRepository.findById(NumberUtils.toLong(fieldId));
-        return field
-                .map(fieldDO -> fieldDO.getCourt())
-                .map(courtDOToResponseConverter::convert)
-                .orElse(null);
-    }
-
-    @Override
     public Court addFieldToCourt(String courtId, CreateFieldRequest createFieldRequest) {
         // TODO: eventually, will need to validate CreateFieldRequest, right now assume input correct
         Optional<CourtDO> court = courtRepository.findById(NumberUtils.toLong(courtId));

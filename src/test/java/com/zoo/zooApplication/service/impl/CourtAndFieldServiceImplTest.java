@@ -180,17 +180,6 @@ public class CourtAndFieldServiceImplTest {
     }
 
     @Test
-    public void testFindCourtByFieldId() {
-        CourtDO mockCourt = mock(CourtDO.class);
-        FieldDO mockField = mock(FieldDO.class);
-        when(mockField.getCourt()).thenReturn(mockCourt);
-        when(fieldRepository.findById(123L)).thenReturn(Optional.of(mockField));
-        Court response = mock(Court.class);
-        when(courtDOToResponseConverter.convert(mockCourt)).thenReturn(response);
-        assertEquals(response, courtAndFieldService.findCourtByFieldId("123"));
-    }
-
-    @Test
     public void testAddFieldToCourt() {
         CreateFieldRequest fieldRequest = new CreateFieldRequest();
         FieldRequest request1 = new FieldRequest();
@@ -221,6 +210,7 @@ public class CourtAndFieldServiceImplTest {
         assertEquals("testName1", fieldValue.get(0).getName());
         assertEquals("testName2", fieldValue.get(1).getName());
         assertEquals("testName3", fieldValue.get(2).getName());
+        assertEquals(Long.valueOf(456), fieldValue.get(2).getFieldTypeId());
         assertEquals(Arrays.asList(123L, 456L), fieldValue.get(2).getSubFieldIds());
     }
 

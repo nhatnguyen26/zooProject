@@ -64,13 +64,4 @@ public class CourtManagementResourceTest {
         assertEquals(expectCourt, resource.addFieldToCourt("123", mockRequest));
     }
 
-    @Test
-    public void testFindCourtByFieldId() {
-        CourtManagementResource resource = new CourtManagementResource(mockCourtAndFieldService);
-        Court expectCourt = mock(Court.class);
-        CreateFieldRequest mockRequest = mock(CreateFieldRequest.class);
-        when(mockCourtAndFieldService.findCourtByFieldId("123")).thenReturn(expectCourt);
-        assertEquals(expectCourt, resource.findByFieldId("123"));
-    }
-
 }
