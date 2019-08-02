@@ -15,4 +15,6 @@ public interface CourtAndFieldService {
     Court addFieldTypeToCourt(String courtId, CreateFieldTypeRequest createFieldTypeRequest);
 //    TODO unit test
     FieldType addPriceChartToFieldType(String fieldTypeId, CreatePriceChartRequest createPriceChartRequest);
+
+    Court editCourt(String courtId, CreateCourtRequest createCourtRequest);
 }

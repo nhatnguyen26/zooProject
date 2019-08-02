@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -18,9 +20,11 @@ import java.util.List;
 @Entity
 @Table(name = "courts")
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor // require for @Builder to work correctly
 @NoArgsConstructor // required for hibernate mapping
+@DynamicUpdate
 public class CourtDO {
 
     @Id

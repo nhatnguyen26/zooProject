@@ -16,6 +16,7 @@ import com.zoo.zooApplication.response.FieldType;
 import com.zoo.zooApplication.service.CourtAndFieldService;
 import com.zoo.zooApplication.util.DateTimeUtil;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 
@@ -65,6 +66,45 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
 
         Court court = courtDOToResponseConverter.convert(courtRepository.save(courtDO));
         return court;
+    }
+
+    @Override
+    public Court editCourt(String courtId, CreateCourtRequest createCourtRequest) {
+        Optional<CourtDO> court = courtRepository.findById(NumberUtils.toLong(courtId));
+
+        return court
+            .map(courtDO -> editCourtInfo(courtDO, createCourtRequest))
+            .map(courtRepository::save)
+            .map(courtDOToResponseConverter::convert)
+            .orElse(null);
+    }
+
+    private CourtDO editCourtInfo(CourtDO courtDO, CreateCourtRequest createCourtRequest) {
+        if (StringUtils.isNotBlank(createCourtRequest.getName())) {
+            courtDO.setName(createCourtRequest.getName());
+        }
+
+        if (StringUtils.isNotBlank(createCourtRequest.getAddressStreet())) {
+            courtDO.setAddressStreet(createCourtRequest.getAddressStreet());
+        }
+
+        if (StringUtils.isNotBlank(createCourtRequest.getAddressWard())) {
+            courtDO.setAddressWard(createCourtRequest.getAddressWard());
+        }
+
+        if (StringUtils.isNotBlank(createCourtRequest.getAddressDistrict())) {
+            courtDO.setAddressDistrict(createCourtRequest.getAddressDistrict());
+        }
+
+        if (StringUtils.isNotBlank(createCourtRequest.getAddressCity())) {
+            courtDO.setAddressCity(createCourtRequest.getAddressCity());
+        }
+
+        if (StringUtils.isNotBlank(createCourtRequest.getPhoneNumber())) {
+            courtDO.setPhoneNumber(createCourtRequest.getPhoneNumber());
+        }
+
+        return courtDO;
     }
 
     @Override

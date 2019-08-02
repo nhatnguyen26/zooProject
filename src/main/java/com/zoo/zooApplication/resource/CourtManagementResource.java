@@ -57,6 +57,15 @@ public class CourtManagementResource {
                 .build();
     }
 
+    @ApiOperation(value = "edit the information of the court", response = Court.class)
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Court edited")})
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/courts/{courtId}")
+    public Court editCourt(@PathParam("courtId") String courtId, @RequestBody CreateCourtRequest createCourtRequest) {
+        return courtAndFieldService.editCourt(courtId, createCourtRequest);
+    }
+
     @ApiOperation(value = "find the court and its fields by court id", response = Court.class)
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Court found and all the field belong to it")})
     @GET
