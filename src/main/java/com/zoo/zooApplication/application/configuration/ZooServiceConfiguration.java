@@ -69,7 +69,7 @@ public class ZooServiceConfiguration extends ResourceConfig {
 		InputStream credentialStream = new ByteArrayInputStream(firebaseCredentialJSON.getBytes());
 		FirebaseOptions options = new FirebaseOptions.Builder()
 			.setCredentials(GoogleCredentials.fromStream(credentialStream))
-			.setDatabaseUrl("https://zoo-team.firebaseio.com/")
+			.setDatabaseUrl("https://zoo-application.firebaseio.com/")
 			.build();
 
 		return FirebaseApp.initializeApp(options);
@@ -82,7 +82,7 @@ public class ZooServiceConfiguration extends ResourceConfig {
 	public FirebaseApp getFirebaseAppFallBack() throws IOException {
 		FirebaseOptions options = new FirebaseOptions.Builder()
 			.setCredentials(GoogleCredentials.getApplicationDefault())
-			.setDatabaseUrl("https://zoo-team.firebaseio.com/")
+			.setDatabaseUrl("https://zoo-application.firebaseio.com/")
 			.build();
 
 		return FirebaseApp.initializeApp(options);

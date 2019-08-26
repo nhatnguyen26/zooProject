@@ -3,14 +3,19 @@ package com.zoo.zooApplication.service.impl;
 import com.zoo.zooApplication.converter.CourtDOToResponseConverter;
 import com.zoo.zooApplication.converter.FieldDOToResponseConverter;
 import com.zoo.zooApplication.converter.FieldTypeDOToResponseConverter;
+import com.zoo.zooApplication.dao.model.CourtClaimOTPDO;
 import com.zoo.zooApplication.dao.model.CourtDO;
+import com.zoo.zooApplication.dao.model.CourtUserRoleDO;
 import com.zoo.zooApplication.dao.model.FieldDO;
 import com.zoo.zooApplication.dao.model.FieldTypeDO;
 import com.zoo.zooApplication.dao.model.PriceChartDO;
+import com.zoo.zooApplication.dao.repository.CourtClaimOTPRepository;
 import com.zoo.zooApplication.dao.repository.CourtRepository;
+import com.zoo.zooApplication.dao.repository.CourtUserRoleRepository;
 import com.zoo.zooApplication.dao.repository.FieldRepository;
 import com.zoo.zooApplication.dao.repository.FieldTypeRepository;
 import com.zoo.zooApplication.dao.repository.PriceChartRepository;
+import com.zoo.zooApplication.request.ClaimKeyRequest;
 import com.zoo.zooApplication.request.CreateCourtRequest;
 import com.zoo.zooApplication.request.CreateFieldRequest;
 import com.zoo.zooApplication.request.CreateFieldTypeRequest;
@@ -22,6 +27,7 @@ import com.zoo.zooApplication.response.Court;
 import com.zoo.zooApplication.response.Field;
 import com.zoo.zooApplication.response.FieldType;
 import com.zoo.zooApplication.service.CourtAndFieldService;
+import com.zoo.zooApplication.type.CourtRoleEnum;
 import com.zoo.zooApplication.util.DateTimeUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,11 +45,15 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
     // NOTE: ideally the design is fit for nosql db but initially use sql as prototype but it make good sense for court and field to be belong to a same service
     private CourtRepository courtRepository;
 
+    private CourtClaimOTPRepository courtClaimOTPRepository;
+
     private FieldRepository fieldRepository;
 
     private FieldTypeRepository fieldTypeRepository;
 
     private PriceChartRepository priceChartRepository;
+
+    private CourtUserRoleRepository courtUserRoleRepository;
 
     private CourtDOToResponseConverter courtDOToResponseConverter;
 
@@ -52,11 +62,13 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
     private FieldTypeDOToResponseConverter fieldTypeDOToResponseConverter;
 
     @Inject
-    public CourtAndFieldServiceImpl(CourtRepository courtRepository, FieldRepository fieldRepository,
+    public CourtAndFieldServiceImpl(CourtRepository courtRepository, CourtClaimOTPRepository courtClaimOTPRepository, FieldRepository fieldRepository,
                                     FieldTypeRepository fieldTypeRepository, PriceChartRepository priceChartRepository,
-                                    CourtDOToResponseConverter courtDOToResponseConverter, FieldDOToResponseConverter fieldDOToResponseConverter, FieldTypeDOToResponseConverter fieldTypeDOToResponseConverter) {
+                                    CourtUserRoleRepository courtUserRoleRepository, CourtDOToResponseConverter courtDOToResponseConverter, FieldDOToResponseConverter fieldDOToResponseConverter, FieldTypeDOToResponseConverter fieldTypeDOToResponseConverter) {
         this.courtRepository = courtRepository;
+        this.courtClaimOTPRepository = courtClaimOTPRepository;
         this.fieldRepository = fieldRepository;
+        this.courtUserRoleRepository = courtUserRoleRepository;
         this.courtDOToResponseConverter = courtDOToResponseConverter;
         this.fieldTypeRepository = fieldTypeRepository;
         this.priceChartRepository = priceChartRepository;
@@ -64,6 +76,7 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
         this.fieldTypeDOToResponseConverter = fieldTypeDOToResponseConverter;
     }
 
+    @Transactional
     @Override
     public Court createCourt(CreateCourtRequest createCourtRequest) {
         CourtDO courtDO = CourtDO.builder()
@@ -77,6 +90,10 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
                 .build();
 
         Court court = courtDOToResponseConverter.convert(courtRepository.save(courtDO));
+        CourtClaimOTPDO courtClaimOTPDO = CourtClaimOTPDO.builder()
+            .courtId(court.getId())
+            .build();
+        courtClaimOTPRepository.save(courtClaimOTPDO);
         return court;
     }
 
@@ -243,6 +260,30 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
                 .map(fieldTypeRepository::save)
                 .map(fieldTypeDOToResponseConverter::convert)
                 .orElse(null);
+    }
+
+    @Transactional
+    @Override
+    public Court claimCourtAsOwner(ClaimKeyRequest claimRequest) {
+        Optional<CourtClaimOTPDO> courtClaimOTPDO = courtClaimOTPRepository.findByClaimKey(claimRequest.getClaimKey());
+
+        return courtClaimOTPDO
+            .flatMap(courtClaim -> courtRepository.findById(courtClaim.getCourtId()))
+            .map(courtDO -> claimCourtAsOwner(courtDO, claimRequest))
+            .map(courtDOToResponseConverter::convert)
+            .orElse(null);
+    }
+
+    private CourtDO claimCourtAsOwner(CourtDO courtDO, ClaimKeyRequest claimRequest) {
+        CourtUserRoleDO courtUserRoleDO = CourtUserRoleDO
+            .builder()
+            .courtId(courtDO.getId())
+            .uid(claimRequest.getUid())
+            .courtRole(CourtRoleEnum.OWNER)
+            .build();
+        courtUserRoleRepository.insert(courtUserRoleDO);
+        courtClaimOTPRepository.deleteById(courtDO.getId());
+        return courtDO;
     }
 
     private FieldTypeDO addPriceChartDO(FieldTypeDO fieldTypeDO, List<PriceChartRequest> priceChartRequest) {

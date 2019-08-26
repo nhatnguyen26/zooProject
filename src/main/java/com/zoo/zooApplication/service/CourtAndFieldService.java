@@ -1,6 +1,7 @@
 package com.zoo.zooApplication.service;
 
 
+import com.zoo.zooApplication.request.ClaimKeyRequest;
 import com.zoo.zooApplication.request.CreateCourtRequest;
 import com.zoo.zooApplication.request.CreateFieldRequest;
 import com.zoo.zooApplication.request.CreateFieldTypeRequest;
@@ -23,4 +24,5 @@ public interface CourtAndFieldService {
 //    TODO unit test
     FieldType addPriceChartToFieldType(String fieldTypeId, CreatePriceChartRequest createPriceChartRequest);
 
+	Court claimCourtAsOwner(ClaimKeyRequest claimRequest);
 }

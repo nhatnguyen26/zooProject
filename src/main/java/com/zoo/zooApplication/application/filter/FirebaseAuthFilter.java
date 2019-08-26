@@ -12,8 +12,10 @@ import org.springframework.core.Ordered;
 
 import javax.annotation.Priority;
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 
@@ -37,8 +39,12 @@ public class FirebaseAuthFilter implements ContainerRequestFilter {
                 requestContext.setProperty(IFirebaseAuth.NAME, new FirebaseAuthImpl(token));
             } catch (FirebaseAuthException e) {
                 e.printStackTrace();
+                // FIXME: should throw exception if token not set
+                throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED).build());
             }
+        } else {
             // FIXME: should throw exception if token not set
+            throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED).build());
         }
     }
 }
