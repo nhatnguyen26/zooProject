@@ -1,5 +1,5 @@
 [![pipeline status](https://gitlab.com/zooteamworkspace/zooProject/badges/master/pipeline.svg)](https://gitlab.com/zooteamworkspace/zooProject/commits/master)
-[![last deployment status](https://gitlab.com/zooteamworkspace/zooProject/badges/master/pipeline.svg)](https://gitlab.com/zooteamworkspace/zooProject/commits/heroku-deploy)
+[![pipeline status](https://gitlab.com/zooteamworkspace/zooProject/badges/heroku-deploy/pipeline.svg)](https://gitlab.com/zooteamworkspace/zooProject/commits/heroku-deploy)
 [![coverage report](https://gitlab.com/zooteamworkspace/zooProject/badges/master/coverage.svg)](https://gitlab.com/zooteamworkspace/zooProject/commits/master)
 
 # zooProject
