@@ -150,10 +150,6 @@ public class CourtManagementResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/claimKeys/{claimKey}")
-    @ZooMasterAuthentication
-    @ApiImplicitParams({
-        @ApiImplicitParam(name = "X-Authorization-Master", paramType = "header", dataTypeClass = String.class)
-    })
     public Court findByClaimKey(@PathParam("claimKey") String claimKey) {
         return courtAndFieldService.findCourtByClaimKey(claimKey);
     }
