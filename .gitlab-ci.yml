@@ -1,21 +1,13 @@
 stages:
   - build
-  - test
   - deploy
 
 build:
   stage: build
   image: maven:latest
   script:
-    - mvn compile
-  only:
-    - master
-
-test:
-  stage: test
-  image: maven:latest
-  script:
-    - mvn test
+    - mvn install -U -B
+    - cat target/site/jacoco/index.html
   only:
     - master
 
