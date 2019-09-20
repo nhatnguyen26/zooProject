@@ -36,14 +36,11 @@ public class FieldTypeDOToResponseConverter {
 	}
 
 	private List<PriceChart> convertPriceCharts(FieldTypeDO fieldTypeDO) {
-		if (CollectionUtils.isNotEmpty(fieldTypeDO.getPriceCharts())) {
-			return fieldTypeDO
-				.getPriceCharts()
-				.stream()
-				.map(priceChartDOToResponseConverter::convert)
-				.collect(Collectors.toList());
-		}
-		return Collections.emptyList();
+		return fieldTypeDO
+			.getPriceCharts()
+			.stream()
+			.map(priceChartDOToResponseConverter::convert)
+			.collect(Collectors.toList());
 	}
 
 	public FieldTypeResponse convert(@NotNull final List<FieldTypeDO> fieldTypeDOList) {
