@@ -8,6 +8,8 @@ CREATE TABLE FIELD_BOOKINGS (
     field_id INT,
     time_in  BIGINT NOT NULL,
     time_out BIGINT NOT NULL,
+	actual_time_in  BIGINT,
+    actual_time_out BIGINT,
     status  VARCHAR(20),
     booker_user_id  INT,
     booker_name  VARCHAR(64),

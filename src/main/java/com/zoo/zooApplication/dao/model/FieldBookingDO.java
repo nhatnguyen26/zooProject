@@ -1,10 +1,9 @@
 package com.zoo.zooApplication.dao.model;
 
+import com.zoo.zooApplication.dao.util.BookingStatusEnumConverter;
 import com.zoo.zooApplication.dao.util.DOTimestampConverter;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.zoo.zooApplication.type.BookingStatusEnum;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -21,6 +20,7 @@ import java.time.ZonedDateTime;
 @Table(name = "field_bookings")
 @Getter
 @Builder
+@Setter
 @AllArgsConstructor // require for @Builder to work correctly
 @NoArgsConstructor // required for hibernate mapping
 public class FieldBookingDO {
@@ -47,7 +47,16 @@ public class FieldBookingDO {
     private ZonedDateTime timeOut;
 
     @Column(nullable = false)
-    private String status;
+    @Convert(converter = DOTimestampConverter.class)
+    private ZonedDateTime actualTimeIn;
+
+    @Column(nullable = false)
+    @Convert(converter = DOTimestampConverter.class)
+    private ZonedDateTime actualTimeOut;
+
+    @Column
+    @Convert(converter = BookingStatusEnumConverter.class)
+    private BookingStatusEnum status; 
 
     @Column
     private Long bookerUserId;
