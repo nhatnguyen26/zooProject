@@ -177,9 +177,10 @@ public class BookingServiceImplTest {
     public void testCreateBookingValidRequestVerifyTime() {
         BookingRequest testRequest = mock(BookingRequest.class);
         when(testRequest.getTimeIn()).thenReturn("2019-03-10T15:16:15Z");
+        when(testRequest.getTimeOut()).thenReturn("2019-03-10T15:46:15Z");
         FieldBookingDO requestDO = fieldRequestHelper(testRequest);
         assertEquals(ZonedDateTime.of(LocalDateTime.of(2019, 03, 10, 15, 16, 15), ZoneId.of("UTC")), requestDO.getTimeIn());
-        assertEquals(requestDO.getTimeOut(), requestDO.getTimeIn().plusMinutes(90));
+        assertEquals(requestDO.getTimeOut(), requestDO.getTimeIn().plusMinutes(30));
 
     }
 
