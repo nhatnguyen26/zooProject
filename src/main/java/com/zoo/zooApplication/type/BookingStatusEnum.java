@@ -3,8 +3,8 @@ package com.zoo.zooApplication.type;
 public enum BookingStatusEnum {
 
     RESERVED(1,"RESERVED"),
-    CHECKIN(2,"CHECK IN"),
-    CHECKOUT(3,"CHECK OUT"),
+    CHECKED_IN(2,"CHECKED_IN"),
+    CHECKED_OUT(3,"CHECKED_OUT"),
     CANCELLED(4,"CANCELLED"),
     HIDDEN(5,"HIDDEN");
 

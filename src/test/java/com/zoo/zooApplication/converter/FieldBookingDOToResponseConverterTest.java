@@ -30,21 +30,21 @@ public class FieldBookingDOToResponseConverterTest {
     public void testConvertWithId() {
         when(mockDO.getId()).thenReturn(Long.valueOf(123));
         FieldBooking fieldBooking = testConverter.convert(mockDO);
-        assertEquals(123l, fieldBooking.getId());
+        assertEquals(Long.valueOf(123), fieldBooking.getId());
     }
 
     @Test
     public void testConvertWithFieldId() {
         when(mockDO.getFieldId()).thenReturn(Long.valueOf(123));
         FieldBooking fieldBooking = testConverter.convert(mockDO);
-        assertEquals(123l, fieldBooking.getFieldId());
+        assertEquals(Long.valueOf(123), fieldBooking.getFieldId());
     }
 
     @Test
     public void testConvertWithCourtId() {
         when(mockDO.getCourtId()).thenReturn(Long.valueOf(123));
         FieldBooking fieldBooking = testConverter.convert(mockDO);
-        assertEquals(123l, fieldBooking.getCourtId());
+        assertEquals(Long.valueOf(123), fieldBooking.getCourtId());
     }
 
 }

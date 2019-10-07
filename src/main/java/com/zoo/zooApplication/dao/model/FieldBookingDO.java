@@ -5,6 +5,8 @@ import com.zoo.zooApplication.dao.util.DOTimestampConverter;
 import com.zoo.zooApplication.type.BookingStatusEnum;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.SelectBeforeUpdate;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.Column;
@@ -19,21 +21,23 @@ import java.time.ZonedDateTime;
 @Entity
 @Table(name = "field_bookings")
 @Getter
-@Builder
 @Setter
+@Builder
 @AllArgsConstructor // require for @Builder to work correctly
 @NoArgsConstructor // required for hibernate mapping
+@DynamicUpdate
+@SelectBeforeUpdate(false)
 public class FieldBookingDO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(updatable = false)
     private Long courtId;
 
     @Column
-    private String fieldType;
+    private Long fieldTypeId;
 
     @Column
     private Long fieldId;
@@ -59,6 +63,12 @@ public class FieldBookingDO {
     private BookingStatusEnum status; 
 
     @Column
+    private String adminNote;
+
+    @Column
+    private Boolean regularBooker;
+
+    @Column
     private Long bookerUserId;
 
     @Column
@@ -70,8 +80,14 @@ public class FieldBookingDO {
     @Column
     private String bookerPhone;
 
-    @Column
+    @Column(updatable = false)
     private Double priceAmount;
+
+    @Column
+    private Double actualChargedAmount;
+
+    @Column
+    private Double depositAmount;
 
     @Column
     private String currencyId;

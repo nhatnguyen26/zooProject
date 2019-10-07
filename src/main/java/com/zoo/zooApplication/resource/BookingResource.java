@@ -3,18 +3,27 @@ package com.zoo.zooApplication.resource;
 import com.zoo.zooApplication.application.filter.FirebaseAuthentication;
 import com.zoo.zooApplication.application.filter.ZooMasterAuthentication;
 import com.zoo.zooApplication.request.BookingRequest;
-import com.zoo.zooApplication.request.CreateBookingRequest;
 import com.zoo.zooApplication.request.SearchFieldBookingRequest;
 import com.zoo.zooApplication.response.FieldBooking;
 import com.zoo.zooApplication.service.BookingService;
-import io.swagger.annotations.*;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -35,7 +44,6 @@ public class BookingResource {
 
     @ApiOperation(value = "get current version", response = String.class)
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Resource found")})
-    @FirebaseAuthentication
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/version")
@@ -45,22 +53,28 @@ public class BookingResource {
 
     @ApiOperation(value = "find the field bookings by id")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Booking found", response = FieldBooking.class)})
-    @FirebaseAuthentication
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{bookingId}")
+    @FirebaseAuthentication
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "X-Authorization-Firebase", paramType = "header", dataTypeClass = String.class)
+    })
     public FieldBooking findById(@PathParam("bookingId") String bookingId) {
         return bookingService.findBookingById(bookingId);
     }
 
     @ApiOperation(value = "create a booking entries")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "Booking created", response = FieldBooking.class)})
-    @FirebaseAuthentication
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/")
-    public Response createBooking(@RequestBody CreateBookingRequest bookingRequest, @Context UriInfo uriInfo) {
+    @FirebaseAuthentication
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "X-Authorization-Firebase", paramType = "header", dataTypeClass = String.class)
+    })
+    public Response createBooking(@RequestBody BookingRequest bookingRequest, @Context UriInfo uriInfo) {
         FieldBooking bookingCreated = bookingService.createBooking(bookingRequest);
         URI locationURI = uriInfo
                 .getAbsolutePathBuilder()
@@ -78,7 +92,8 @@ public class BookingResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/booking/{bookingId}")
     @FirebaseAuthentication
-    @ApiImplicitParams({@ApiImplicitParam(name = "X-Authorization-Firebase", paramType = "header", dataTypeClass = String.class)
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "X-Authorization-Firebase", paramType = "header", dataTypeClass = String.class)
     })
     public FieldBooking editFieldBooking(@PathParam("bookingId") String bookingId, @RequestBody BookingRequest bookingRequest) {
         return bookingService.editBooking(bookingId,bookingRequest);
@@ -91,7 +106,7 @@ public class BookingResource {
     @Path("/booking/{bookingId}")
     @ZooMasterAuthentication
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "X-Authorization-Firebase", paramType = "header", dataTypeClass = String.class)
+        @ApiImplicitParam(name = "X-Authorization-Master", paramType = "header", dataTypeClass = String.class)
     })
     public FieldBooking deleteField(@PathParam("bookingId") String bookingId) {
         return bookingService.deleteBooking(bookingId);
@@ -99,9 +114,12 @@ public class BookingResource {
 
     @ApiOperation(value = "find the field bookings by field id", response = FieldBooking.class)
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Resource found")})
-    @FirebaseAuthentication
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @FirebaseAuthentication
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "X-Authorization-Firebase", paramType = "header", dataTypeClass = String.class)
+    })
     @Path("/search")
     public List<FieldBooking> findByFieldId(@QueryParam("fieldId") String fieldId,
                                             @QueryParam("limit") int limit,
@@ -118,10 +136,13 @@ public class BookingResource {
 
     @ApiOperation(value = "proceed to user information after time slot allocation")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Resource found")})
-    @FirebaseAuthentication
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/searchByUserInfo")
+    @FirebaseAuthentication
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "X-Authorization-Firebase", paramType = "header", dataTypeClass = String.class)
+    })
     public List<FieldBooking> findByUserInfo
             (@QueryParam("bookerPhone") String bookerPhone,
              @QueryParam("bookerEmail") String bookerEmail,
