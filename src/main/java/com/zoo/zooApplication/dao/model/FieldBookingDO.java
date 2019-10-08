@@ -3,7 +3,11 @@ package com.zoo.zooApplication.dao.model;
 import com.zoo.zooApplication.dao.util.BookingStatusEnumConverter;
 import com.zoo.zooApplication.dao.util.DOTimestampConverter;
 import com.zoo.zooApplication.type.BookingStatusEnum;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
@@ -33,6 +37,9 @@ public class FieldBookingDO {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(updatable = false, unique = true)
+    private String bookingNumber;
+
     @Column(updatable = false)
     private Long courtId;
 
@@ -50,11 +57,9 @@ public class FieldBookingDO {
     @Convert(converter = DOTimestampConverter.class)
     private ZonedDateTime timeOut;
 
-    @Column(nullable = false)
     @Convert(converter = DOTimestampConverter.class)
     private ZonedDateTime actualTimeIn;
 
-    @Column(nullable = false)
     @Convert(converter = DOTimestampConverter.class)
     private ZonedDateTime actualTimeOut;
 
@@ -101,4 +106,5 @@ public class FieldBookingDO {
     @Convert(converter = DOTimestampConverter.class)
     @UpdateTimestamp
     private ZonedDateTime updatedAt;
+
 }
