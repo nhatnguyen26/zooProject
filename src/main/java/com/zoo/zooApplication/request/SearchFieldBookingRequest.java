@@ -1,41 +1,37 @@
 package com.zoo.zooApplication.request;
 
-import io.swagger.annotations.ApiModelProperty;
-import io.swagger.annotations.ApiResponse;
-import lombok.Builder;
+import io.swagger.annotations.ApiParam;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
-@Builder
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.QueryParam;
+
 @Getter
 @Setter
 public class SearchFieldBookingRequest {
 
-    @ApiModelProperty(value = "The unique identifier of the requested searching field ")
-    private String fieldId;
+    @QueryParam("courtId")
+    private String courtId;
 
-    @ApiModelProperty(value = "The number of records returns per page ")
+    @QueryParam("limit")
+    @DefaultValue(value = "100")
+    @ApiParam(value = "page size", defaultValue = "100")
     private int limit;
 
-    @ApiModelProperty(value = "The index of starting page ")
+    @QueryParam("offset")
+    @ApiParam(value = "pagination offset", defaultValue = "0")
     private int offset;
 
-    @ApiModelProperty(value = "The email address of the booker")
-    private String bookerEmail;
+    @QueryParam("timeFrom")
+    @ApiParam(value = "lower bound for time range in format YYYY-MM-ddTHH:mm:ssZ (ISO-8601) in UTC", example = "2019-10-06T22:39:10Z")
+    private String timeFrom;
 
-    @ApiModelProperty(value = "The phone number of the booker")
-    private String bookerPhone;
-
-    @ApiModelProperty(value = "The starting time when customer occupies the field")
-    private String timeIn;
-
-    public Long getFieldId(){
-        return NumberUtils.toLong(fieldId);
-    }
+    @QueryParam("timeTo")
+    @ApiParam(value = "upper bound for time range in format YYYY-MM-ddTHH:mm:ssZ (ISO-8601) in UTC", example = "2019-10-06T22:39:10Z")
+    private String timeTo;
 
     public Pageable getPageable(){
         return PageRequest.of(offset, limit);

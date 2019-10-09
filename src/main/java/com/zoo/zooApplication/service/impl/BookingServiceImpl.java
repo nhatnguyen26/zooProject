@@ -7,6 +7,7 @@ import com.zoo.zooApplication.request.BookingDetailRequest;
 import com.zoo.zooApplication.request.BookingRequest;
 import com.zoo.zooApplication.request.SearchFieldBookingRequest;
 import com.zoo.zooApplication.response.FieldBooking;
+import com.zoo.zooApplication.response.FieldBookingResponse;
 import com.zoo.zooApplication.service.BookingService;
 import com.zoo.zooApplication.util.DateTimeUtil;
 import org.apache.commons.collections4.CollectionUtils;
@@ -179,35 +180,21 @@ public class BookingServiceImpl implements BookingService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<FieldBooking> findAllBookingByFieldId(SearchFieldBookingRequest searchRequest) {
-		FieldBookingDO fieldBookingDO = FieldBookingDO
-			.builder()
-			.fieldId(searchRequest.getFieldId())
-			.build();
-		Example<FieldBookingDO> exampleBookingDO = Example.of(fieldBookingDO);
-		Page<FieldBookingDO> listFieldBookingDO =
-			fieldBookingRepository.findAll(exampleBookingDO, searchRequest.getPageable());
-		return listFieldBookingDO
+	public FieldBookingResponse search(SearchFieldBookingRequest searchRequest) {
+		Page<FieldBookingDO> fieldBookingPage = fieldBookingRepository.findByCourtIdWithTimeRange(
+			NumberUtils.toLong(searchRequest.getCourtId()),
+			DateTimeUtil.parseISO8601Format(searchRequest.getTimeFrom()).toInstant().toEpochMilli(),
+			DateTimeUtil.parseISO8601Format(searchRequest.getTimeTo()).toInstant().toEpochMilli(),
+			searchRequest.getPageable());
+
+		List<FieldBooking> fieldBookings = fieldBookingPage.getContent()
 			.stream()
 			.map(fieldBookingDOToResponseConverter::convert)
 			.collect(Collectors.toList());
+		return FieldBookingResponse
+			.builder()
+			.fieldBookings(fieldBookings)
+			.build();
 	}
 
-	@Transactional(readOnly = true)
-	@Override
-	public List<FieldBooking> findByUserInfo
-		(SearchFieldBookingRequest searchRequest) {
-		ZonedDateTime timeIn = DateTimeUtil.parseISO8601Format(searchRequest.getTimeIn());
-		List<FieldBookingDO> listFieldBookingDO =
-			fieldBookingRepository.findByBookerPhoneOrBookerEmailAndTimeInGreaterThanEqual(
-				searchRequest.getBookerPhone(),
-				searchRequest.getBookerEmail(),
-				timeIn,
-				searchRequest.getPageable()
-			);
-		return listFieldBookingDO
-			.stream()
-			.map(fieldBookingDOToResponseConverter::convert)
-			.collect(Collectors.toList());
-	}
 }
