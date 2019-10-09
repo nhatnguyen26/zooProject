@@ -1,14 +1,15 @@
 package com.zoo.zooApplication.service.impl;
 
 import com.zoo.zooApplication.converter.FieldBookingDOToResponseConverter;
-import com.zoo.zooApplication.dao.model.CourtDO;
 import com.zoo.zooApplication.dao.model.FieldBookingDO;
 import com.zoo.zooApplication.dao.repository.FieldBookingRepository;
+import com.zoo.zooApplication.request.BookingDetailRequest;
 import com.zoo.zooApplication.request.BookingRequest;
 import com.zoo.zooApplication.request.SearchFieldBookingRequest;
 import com.zoo.zooApplication.response.FieldBooking;
 import com.zoo.zooApplication.service.BookingService;
 import com.zoo.zooApplication.util.DateTimeUtil;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.data.domain.Example;
@@ -35,6 +36,7 @@ public class BookingServiceImpl implements BookingService {
 		this.fieldBookingDOToResponseConverter = fieldBookingDOToResponseConverter;
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	public FieldBooking findBookingById(String bookingId) {
 		Optional<FieldBookingDO> fieldBookingDO = fieldBookingRepository.findById(NumberUtils.toLong(bookingId));
@@ -48,26 +50,47 @@ public class BookingServiceImpl implements BookingService {
 	public FieldBooking createBooking(BookingRequest bookingRequest) {
 		FieldBookingDO.FieldBookingDOBuilder doBuilder = FieldBookingDO.builder()
 			.courtId(bookingRequest.getCourtId())
-			.fieldTypeId(bookingRequest.getFieldTypeId())
-			.fieldId(bookingRequest.getFieldId())
-			.status(bookingRequest.getStatus())
-			.timeIn(DateTimeUtil.parseISO8601Format(bookingRequest.getTimeIn()))
-			.actualTimeIn(DateTimeUtil.parseISO8601Format(bookingRequest.getActualTimeIn()))
-			.timeOut(DateTimeUtil.parseISO8601Format(bookingRequest.getTimeOut()))
-			.actualTimeOut(DateTimeUtil.parseISO8601Format(bookingRequest.getActualTimeOut()))
 			.bookerPhone(bookingRequest.getBookerPhone())
 			.bookerEmail(bookingRequest.getBookerEmail())
 			.bookerName(bookingRequest.getBookerName())
 			.regularBooker(bookingRequest.getRegularBooker())
-			.adminNote(bookingRequest.getAdminNote())
 			.priceAmount(bookingRequest.getPriceAmount())
 			.depositAmount(bookingRequest.getDepositAmount())
 			.actualChargedAmount(bookingRequest.getActualChargedAmount())
 			.currencyId("VND"); // NOTE; hard-code to VND
 
-
-		FieldBookingDO result = fieldBookingRepository.save(doBuilder.build());
+		FieldBookingDO doToSave = createSingleBooking(doBuilder, bookingRequest.getBookingDetails().get(0));
+		if (bookingRequest.getBookingDetails().size() > 1) {
+			doToSave = appendDetails(doBuilder, bookingRequest.getBookingDetails().subList(1, bookingRequest.getBookingDetails().size()));
+		}
+		FieldBookingDO result = fieldBookingRepository.save(doToSave);
 		return fieldBookingDOToResponseConverter.convert(result);
+	}
+
+	private FieldBookingDO appendDetails(FieldBookingDO.FieldBookingDOBuilder parentBuilder, List<BookingDetailRequest> bookingDetails) {
+		List<FieldBookingDO> bookingDODetails = bookingDetails.stream()
+			.map(bookingDetailRequest -> createSingleBooking(FieldBookingDO.builder(), bookingDetailRequest))
+			.collect(Collectors.toList());
+
+		// pick the earliest time in to put into the parent record, given use case always within a day to support fetch
+		FieldBookingDO parentRecord = parentBuilder.build();
+		bookingDODetails.forEach(fieldBookingDO -> parentRecord.addSubBooking(fieldBookingDO));
+		return parentRecord;
+	}
+
+	private FieldBookingDO createSingleBooking(FieldBookingDO.FieldBookingDOBuilder doBuilder, BookingDetailRequest detailRequest) {
+		return doBuilder
+			.mainFieldType(detailRequest.getMainFieldType())
+			.fieldTypeId(detailRequest.getFieldTypeId())
+			.fieldId(detailRequest.getFieldId())
+			.status(detailRequest.getStatus())
+			.timeIn(DateTimeUtil.parseISO8601Format(detailRequest.getTimeIn()))
+			.actualTimeIn(DateTimeUtil.parseISO8601Format(detailRequest.getActualTimeIn()))
+			.timeOut(DateTimeUtil.parseISO8601Format(detailRequest.getTimeOut()))
+			.actualTimeOut(DateTimeUtil.parseISO8601Format(detailRequest.getActualTimeOut()))
+			.adminNote(detailRequest.getAdminNote())
+			.build();
+
 	}
 
 	@Transactional
@@ -83,27 +106,6 @@ public class BookingServiceImpl implements BookingService {
 	}
 
 	private FieldBookingDO editBookingInfo(FieldBookingDO fieldBookingDO, BookingRequest editBookingRequest) {
-		if (editBookingRequest.getFieldTypeId() != null) {
-			fieldBookingDO.setFieldTypeId(editBookingRequest.getFieldTypeId());
-		}
-		if (editBookingRequest.getFieldId() != null) {
-			fieldBookingDO.setFieldId(editBookingRequest.getFieldId());
-		}
-		if (editBookingRequest.getStatus() != null) {
-			fieldBookingDO.setStatus(editBookingRequest.getStatus());
-		}
-		if (StringUtils.isNotBlank(editBookingRequest.getTimeIn())) {
-			fieldBookingDO.setTimeIn(DateTimeUtil.parseISO8601Format(editBookingRequest.getTimeIn()));
-		}
-		if (StringUtils.isNotBlank(editBookingRequest.getTimeOut())) {
-			fieldBookingDO.setTimeOut(DateTimeUtil.parseISO8601Format(editBookingRequest.getTimeOut()));
-		}
-		if (StringUtils.isNotBlank(editBookingRequest.getActualTimeIn())) {
-			fieldBookingDO.setActualTimeIn(DateTimeUtil.parseISO8601Format(editBookingRequest.getActualTimeIn()));
-		}
-		if (StringUtils.isNotBlank(editBookingRequest.getActualTimeOut())) {
-			fieldBookingDO.setActualTimeOut(DateTimeUtil.parseISO8601Format(editBookingRequest.getActualTimeOut()));
-		}
 		if (StringUtils.isNotBlank(editBookingRequest.getBookerEmail())) {
 			fieldBookingDO.setBookerEmail(editBookingRequest.getBookerEmail());
 		}
@@ -116,9 +118,7 @@ public class BookingServiceImpl implements BookingService {
 		if (editBookingRequest.getRegularBooker() != null) {
 			fieldBookingDO.setRegularBooker(editBookingRequest.getRegularBooker());
 		}
-		if (StringUtils.isNotBlank(editBookingRequest.getAdminNote())) {
-			fieldBookingDO.setAdminNote(editBookingRequest.getAdminNote());
-		}
+		
 		if (editBookingRequest.getActualChargedAmount() != null) {
 			fieldBookingDO.setActualChargedAmount(editBookingRequest.getActualChargedAmount());
 		}
@@ -126,7 +126,42 @@ public class BookingServiceImpl implements BookingService {
 			fieldBookingDO.setDepositAmount(editBookingRequest.getDepositAmount());
 		}
 
+		if (CollectionUtils.isNotEmpty(editBookingRequest.getBookingDetails())) {
+			// edit the very first detail as parent record
+			editBookingSingle(fieldBookingDO, editBookingRequest.getBookingDetails().get(0));
+
+			List<BookingDetailRequest> bookingDetailRequests = editBookingRequest.getBookingDetails().subList(1, editBookingRequest.getBookingDetails().size());
+			List<FieldBookingDO> subBookings = fieldBookingDO.getSubBookings();
+			int sizeDiff = subBookings.size() - bookingDetailRequests.size();
+			// if there is size diff, match the count for do
+			for (int i = 0; i < Math.abs(sizeDiff); i++) {
+				// there is new detail in booking, could be another booking or change field
+				if (sizeDiff < 0) {
+					fieldBookingDO.addSubBooking(FieldBookingDO.builder().build());
+				} else {
+					subBookings.remove(subBookings.size() - 1);
+				}
+			}
+
+			for (int i = 0; i < subBookings.size(); i++) {
+				editBookingSingle(subBookings.get(i), bookingDetailRequests.get(i));
+			}
+
+		}
+
 		return fieldBookingDO;
+	}
+
+	private void editBookingSingle(FieldBookingDO fieldBookingDO, BookingDetailRequest bookingDetailRequest) {
+		fieldBookingDO.setMainFieldType(bookingDetailRequest.getMainFieldType());
+		fieldBookingDO.setFieldTypeId(bookingDetailRequest.getFieldTypeId());
+		fieldBookingDO.setFieldId(bookingDetailRequest.getFieldId());
+		fieldBookingDO.setStatus(bookingDetailRequest.getStatus());
+		fieldBookingDO.setTimeIn(DateTimeUtil.parseISO8601Format(bookingDetailRequest.getTimeIn()));
+		fieldBookingDO.setTimeOut(DateTimeUtil.parseISO8601Format(bookingDetailRequest.getTimeOut()));
+		fieldBookingDO.setActualTimeIn(DateTimeUtil.parseISO8601Format(bookingDetailRequest.getActualTimeIn()));
+		fieldBookingDO.setActualTimeOut(DateTimeUtil.parseISO8601Format(bookingDetailRequest.getActualTimeOut()));
+		fieldBookingDO.setAdminNote(bookingDetailRequest.getAdminNote());
 	}
 
 	@Transactional

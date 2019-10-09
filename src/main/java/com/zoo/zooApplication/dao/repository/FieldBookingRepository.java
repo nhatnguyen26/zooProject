@@ -15,4 +15,6 @@ public interface FieldBookingRepository extends JpaRepository<FieldBookingDO, Lo
 
     List<FieldBookingDO> findByBookerPhoneOrBookerEmailAndTimeInGreaterThanEqual
             (String bookerEmail, String bookerPhone, ZonedDateTime timeIn, Pageable pageable);
+
+    List<FieldBookingDO> findByIdGreaterThan(Long id);
 }

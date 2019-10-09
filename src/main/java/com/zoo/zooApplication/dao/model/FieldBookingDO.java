@@ -2,7 +2,9 @@ package com.zoo.zooApplication.dao.model;
 
 import com.zoo.zooApplication.dao.util.BookingStatusEnumConverter;
 import com.zoo.zooApplication.dao.util.DOTimestampConverter;
+import com.zoo.zooApplication.dao.util.MainFieldTypeEnumConverter;
 import com.zoo.zooApplication.type.BookingStatusEnum;
+import com.zoo.zooApplication.type.MainFieldTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,17 +12,25 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.SelectBeforeUpdate;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "field_bookings")
@@ -33,78 +43,94 @@ import java.time.ZonedDateTime;
 @SelectBeforeUpdate(false)
 public class FieldBookingDO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(updatable = false, unique = true)
-    private String bookingNumber;
+	@Column(updatable = false, unique = true)
+	private String bookingNumber;
 
-    @Column(updatable = false)
-    private Long courtId;
-
-    @Column
-    private Long fieldTypeId;
+	@Column(updatable = false)
+	private Long courtId;
 
     @Column
-    private Long fieldId;
+    @Convert(converter = MainFieldTypeEnumConverter.class)
+	private MainFieldTypeEnum mainFieldType;
 
-    @Column(nullable = false)
-    @Convert(converter = DOTimestampConverter.class)
-    private ZonedDateTime timeIn;
+	@Column
+	private Long fieldTypeId;
 
-    @Column(nullable = false)
-    @Convert(converter = DOTimestampConverter.class)
-    private ZonedDateTime timeOut;
+	@Column
+	private Long fieldId;
 
-    @Convert(converter = DOTimestampConverter.class)
-    private ZonedDateTime actualTimeIn;
+	@Column
+	@Convert(converter = DOTimestampConverter.class)
+	private ZonedDateTime timeIn;
 
-    @Convert(converter = DOTimestampConverter.class)
-    private ZonedDateTime actualTimeOut;
+	@Column
+	@Convert(converter = DOTimestampConverter.class)
+	private ZonedDateTime timeOut;
 
-    @Column
-    @Convert(converter = BookingStatusEnumConverter.class)
-    private BookingStatusEnum status; 
+	@Convert(converter = DOTimestampConverter.class)
+	private ZonedDateTime actualTimeIn;
 
-    @Column
-    private String adminNote;
+	@Convert(converter = DOTimestampConverter.class)
+	private ZonedDateTime actualTimeOut;
 
-    @Column
-    private Boolean regularBooker;
+	@Column
+	@Convert(converter = BookingStatusEnumConverter.class)
+	private BookingStatusEnum status;
 
-    @Column
-    private Long bookerUserId;
+	@Column
+	private String adminNote;
 
-    @Column
-    private String bookerName;
+	@Column
+	private Boolean regularBooker;
 
-    @Column
-    private String bookerEmail;
+	@Column
+	private Long bookerUserId;
 
-    @Column
-    private String bookerPhone;
+	@Column
+	private String bookerName;
 
-    @Column(updatable = false)
-    private Double priceAmount;
+	@Column
+	private String bookerEmail;
 
-    @Column
-    private Double actualChargedAmount;
+	@Column
+	private String bookerPhone;
 
-    @Column
-    private Double depositAmount;
+	@Column(updatable = false)
+	private Double priceAmount;
 
-    @Column
-    private String currencyId;
+	@Column
+	private Double actualChargedAmount;
 
-    @Column(nullable = false)
-    @Convert(converter = DOTimestampConverter.class)
-    @CreationTimestamp
-    private ZonedDateTime createdAt;
+	@Column
+	private Double depositAmount;
 
-    @Column(nullable = false)
-    @Convert(converter = DOTimestampConverter.class)
-    @UpdateTimestamp
-    private ZonedDateTime updatedAt;
+	@Column
+	private String currencyId;
 
+	@Column(nullable = false)
+	@Convert(converter = DOTimestampConverter.class)
+	@CreationTimestamp
+	private ZonedDateTime createdAt;
+
+	@Column(nullable = false)
+	@Convert(converter = DOTimestampConverter.class)
+	@UpdateTimestamp
+	private ZonedDateTime updatedAt;
+
+	@ManyToOne(targetEntity = FieldBookingDO.class, fetch = FetchType.LAZY)
+	@JoinColumn(name = "parentBookingId")
+	private FieldBookingDO parent;
+
+    @OneToMany(targetEntity = FieldBookingDO.class, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "parent", fetch = FetchType.LAZY)
+    private final List<FieldBookingDO> subBookings = new ArrayList<>();
+
+    public FieldBookingDO addSubBooking(FieldBookingDO fieldBookingDO) {
+        getSubBookings().add(fieldBookingDO);
+        fieldBookingDO.setParent(this);
+        return this;
+    }
 }
