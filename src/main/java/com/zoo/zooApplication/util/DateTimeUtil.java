@@ -19,6 +19,6 @@ public class DateTimeUtil {
         if (localTime == null){
             return null;
         }
-        return localTime.format(DateTimeFormatter.ISO_DATE_TIME);
+        return localTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     }
 }

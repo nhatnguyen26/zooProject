@@ -5,6 +5,7 @@ import com.zoo.zooApplication.application.filter.ZooMasterAuthentication;
 import com.zoo.zooApplication.request.BookingRequest;
 import com.zoo.zooApplication.request.SearchFieldBookingRequest;
 import com.zoo.zooApplication.response.FieldBooking;
+import com.zoo.zooApplication.response.FieldBookingResponse;
 import com.zoo.zooApplication.service.BookingService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -15,6 +16,7 @@ import io.swagger.annotations.ApiResponses;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -112,7 +114,7 @@ public class BookingResource {
         return bookingService.deleteBooking(bookingId);
     }
 
-    @ApiOperation(value = "find the field bookings by field id", response = FieldBooking.class)
+    @ApiOperation(value = "search for bookings using different criteria", response = FieldBooking.class)
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Resource found")})
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -121,40 +123,8 @@ public class BookingResource {
         @ApiImplicitParam(name = "X-Authorization-Firebase", paramType = "header", dataTypeClass = String.class)
     })
     @Path("/search")
-    public List<FieldBooking> findByFieldId(@QueryParam("fieldId") String fieldId,
-                                            @QueryParam("limit") int limit,
-                                            @QueryParam("offset") int offset) {
-
-        SearchFieldBookingRequest searchRequest =
-                SearchFieldBookingRequest.builder()
-                        .fieldId(fieldId)
-                        .offset(offset)
-                        .limit(limit)
-                        .build();
-        return bookingService.findAllBookingByFieldId(searchRequest);
+    public FieldBookingResponse searchFieldBooking(@BeanParam SearchFieldBookingRequest searchRequest) {
+        return bookingService.search(searchRequest);
     }
 
-    @ApiOperation(value = "proceed to user information after time slot allocation")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Resource found")})
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/searchByUserInfo")
-    @FirebaseAuthentication
-    @ApiImplicitParams({
-        @ApiImplicitParam(name = "X-Authorization-Firebase", paramType = "header", dataTypeClass = String.class)
-    })
-    public List<FieldBooking> findByUserInfo
-            (@QueryParam("bookerPhone") String bookerPhone,
-             @QueryParam("bookerEmail") String bookerEmail,
-             @QueryParam("limit") int limit,
-             @QueryParam("offset") int offset){
-        SearchFieldBookingRequest searchRequest =
-                SearchFieldBookingRequest.builder()
-                        .bookerEmail(bookerEmail)
-                        .bookerPhone(bookerPhone)
-                        .limit(limit)
-                        .offset(offset)
-                        .build();
-        return bookingService.findByUserInfo(searchRequest);
-    }
 }

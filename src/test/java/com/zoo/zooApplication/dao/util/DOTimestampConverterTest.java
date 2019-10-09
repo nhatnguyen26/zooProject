@@ -1,11 +1,14 @@
 package com.zoo.zooApplication.dao.util;
 
-import com.zoo.zooApplication.dao.util.DOTimestampConverter;
 import org.junit.Test;
 
-import java.time.*;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class DOTimestampConverterTest {
 

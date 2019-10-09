@@ -12,13 +12,11 @@ public class DOTimestampConverter implements AttributeConverter<ZonedDateTime, L
 
     @Override
     public Long convertToDatabaseColumn(ZonedDateTime localDateTime) {
-        Objects.requireNonNull(localDateTime);
-        return localDateTime.toInstant().toEpochMilli();
+        return localDateTime == null ? null : localDateTime.toInstant().toEpochMilli();
     }
 
     @Override
     public ZonedDateTime convertToEntityAttribute(Long milliseconds) {
-        Objects.requireNonNull(milliseconds);
-        return ZonedDateTime.ofInstant(Instant.ofEpochMilli(milliseconds), ZoneOffset.UTC.normalized());
+        return milliseconds == null ? null : ZonedDateTime.ofInstant(Instant.ofEpochMilli(milliseconds), ZoneOffset.UTC.normalized());
     }
 }

@@ -3,8 +3,7 @@ package com.zoo.zooApplication.service;
 import com.zoo.zooApplication.request.BookingRequest;
 import com.zoo.zooApplication.request.SearchFieldBookingRequest;
 import com.zoo.zooApplication.response.FieldBooking;
-
-import java.util.List;
+import com.zoo.zooApplication.response.FieldBookingResponse;
 
 public interface BookingService {
 
@@ -16,7 +15,6 @@ public interface BookingService {
 
     FieldBooking deleteBooking(String bookingId);
 
-    List<FieldBooking> findAllBookingByFieldId(SearchFieldBookingRequest searchRequest);
+    FieldBookingResponse search(SearchFieldBookingRequest searchRequest);
 
-    List<FieldBooking> findByUserInfo(SearchFieldBookingRequest searchFieldBookingRequest);
 }
