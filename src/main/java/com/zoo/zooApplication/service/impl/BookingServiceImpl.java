@@ -9,17 +9,17 @@ import com.zoo.zooApplication.request.SearchFieldBookingRequest;
 import com.zoo.zooApplication.response.FieldBooking;
 import com.zoo.zooApplication.response.FieldBookingResponse;
 import com.zoo.zooApplication.service.BookingService;
+import com.zoo.zooApplication.type.MainFieldTypeEnum;
 import com.zoo.zooApplication.util.DateTimeUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -58,7 +58,8 @@ public class BookingServiceImpl implements BookingService {
 			.priceAmount(bookingRequest.getPriceAmount())
 			.depositAmount(bookingRequest.getDepositAmount())
 			.actualChargedAmount(bookingRequest.getActualChargedAmount())
-			.currencyId("VND"); // NOTE; hard-code to VND
+			.currencyId("VND")
+			.mainFieldType(bookingRequest.getMainFieldType()); // NOTE; hard-code to VND
 
 		FieldBookingDO doToSave = createSingleBooking(doBuilder, bookingRequest.getBookingDetails().get(0));
 		if (bookingRequest.getBookingDetails().size() > 1) {
@@ -75,13 +76,12 @@ public class BookingServiceImpl implements BookingService {
 
 		// pick the earliest time in to put into the parent record, given use case always within a day to support fetch
 		FieldBookingDO parentRecord = parentBuilder.build();
-		bookingDODetails.forEach(fieldBookingDO -> parentRecord.addSubBooking(fieldBookingDO));
+		bookingDODetails.forEach(parentRecord::addSubBooking);
 		return parentRecord;
 	}
 
 	private FieldBookingDO createSingleBooking(FieldBookingDO.FieldBookingDOBuilder doBuilder, BookingDetailRequest detailRequest) {
 		return doBuilder
-			.mainFieldType(detailRequest.getMainFieldType())
 			.fieldTypeId(detailRequest.getFieldTypeId())
 			.fieldId(detailRequest.getFieldId())
 			.status(detailRequest.getStatus())
@@ -119,7 +119,7 @@ public class BookingServiceImpl implements BookingService {
 		if (editBookingRequest.getRegularBooker() != null) {
 			fieldBookingDO.setRegularBooker(editBookingRequest.getRegularBooker());
 		}
-		
+
 		if (editBookingRequest.getActualChargedAmount() != null) {
 			fieldBookingDO.setActualChargedAmount(editBookingRequest.getActualChargedAmount());
 		}
@@ -154,7 +154,6 @@ public class BookingServiceImpl implements BookingService {
 	}
 
 	private void editBookingSingle(FieldBookingDO fieldBookingDO, BookingDetailRequest bookingDetailRequest) {
-		fieldBookingDO.setMainFieldType(bookingDetailRequest.getMainFieldType());
 		fieldBookingDO.setFieldTypeId(bookingDetailRequest.getFieldTypeId());
 		fieldBookingDO.setFieldId(bookingDetailRequest.getFieldId());
 		fieldBookingDO.setStatus(bookingDetailRequest.getStatus());
@@ -181,11 +180,17 @@ public class BookingServiceImpl implements BookingService {
 	@Transactional(readOnly = true)
 	@Override
 	public FieldBookingResponse search(SearchFieldBookingRequest searchRequest) {
-		Page<FieldBookingDO> fieldBookingPage = fieldBookingRepository.findByCourtIdWithTimeRange(
-			NumberUtils.toLong(searchRequest.getCourtId()),
-			DateTimeUtil.parseISO8601Format(searchRequest.getTimeFrom()).toInstant().toEpochMilli(),
-			DateTimeUtil.parseISO8601Format(searchRequest.getTimeTo()).toInstant().toEpochMilli(),
-			searchRequest.getPageable());
+		Long courtId = NumberUtils.toLong(searchRequest.getCourtId());
+		Long lowerBound = DateTimeUtil.parseISO8601Format(searchRequest.getTimeFrom()).toInstant().toEpochMilli();
+		Long upperBound = DateTimeUtil.parseISO8601Format(searchRequest.getTimeTo()).toInstant().toEpochMilli();
+		Pageable pageable = searchRequest.getPageable();
+
+		MainFieldTypeEnum mainFieldTypeEnum = searchRequest.getMainFieldType();
+
+		Page<FieldBookingDO> fieldBookingPage = (mainFieldTypeEnum != null) ?
+			fieldBookingRepository.findByCourtIdAndMainFieldTypeWithTimeRange(courtId, mainFieldTypeEnum.getId(), lowerBound, upperBound, pageable) :
+			fieldBookingRepository.findByCourtIdWithTimeRange(courtId, lowerBound, upperBound, pageable);
+
 
 		List<FieldBooking> fieldBookings = fieldBookingPage.getContent()
 			.stream()

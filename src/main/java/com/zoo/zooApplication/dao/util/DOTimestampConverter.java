@@ -7,7 +7,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
-@Converter
+@Converter(autoApply = true)
 public class DOTimestampConverter implements AttributeConverter<ZonedDateTime, Long> {
 
     @Override

@@ -2,7 +2,6 @@ package com.zoo.zooApplication.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.zoo.zooApplication.type.BookingStatusEnum;
-import com.zoo.zooApplication.type.MainFieldTypeEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -16,9 +15,6 @@ public class BookingDetailRequest {
 
 	@ApiModelProperty(value = "The unique identifier of the field associate with the booking")
 	private Long fieldId;
-
-	@ApiModelProperty(value = "The main field type of the booking")
-	private MainFieldTypeEnum mainFieldType;
 
 	@ApiModelProperty(value = "The fieldTypeId of the booking, this should be long to the court and associate with correct field, this can be use for pricing or reference")
 	private Long fieldTypeId;

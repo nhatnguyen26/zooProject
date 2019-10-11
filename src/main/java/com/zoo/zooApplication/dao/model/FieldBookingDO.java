@@ -53,7 +53,7 @@ public class FieldBookingDO {
 	@Column(updatable = false)
 	private Long courtId;
 
-    @Column
+	@Column(updatable = false)
     @Convert(converter = MainFieldTypeEnumConverter.class)
 	private MainFieldTypeEnum mainFieldType;
 

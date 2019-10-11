@@ -24,9 +24,6 @@ public class FieldBookingDetail {
 	@ApiModelProperty(value = "The fieldTypeId of the booking, this should be long to the court and associate with correct field")
 	private Long fieldTypeId;
 
-	@ApiModelProperty(value = "the main field type of this booking")
-	private MainFieldTypeEnum mainFieldType;
-
 	@ApiModelProperty(value = "Time for the booking to start in format YYYY-MM-ddTHH:mm:ssZ (ISO-8601) in UTC", example = "2019-10-06T22:39:10Z")
 	private String timeIn;
 

@@ -4,6 +4,7 @@ import com.zoo.zooApplication.converter.FieldBookingDOToResponseConverter;
 import com.zoo.zooApplication.dao.model.FieldBookingDO;
 import com.zoo.zooApplication.dao.repository.FieldBookingRepository;
 import com.zoo.zooApplication.exception.InvalidRequestException;
+import com.zoo.zooApplication.request.BookingDetailRequest;
 import com.zoo.zooApplication.request.BookingRequest;
 import com.zoo.zooApplication.request.BookingRequest;
 import com.zoo.zooApplication.request.SearchFieldBookingRequest;
@@ -31,29 +32,42 @@ import static org.mockito.Mockito.*;
 
 public class BookingServiceImplTest {
 
-//    @Mock
-//    private FieldBookingRepository fieldBookingRepository;
-//
-//    @Mock
-//    private FieldBookingDOToResponseConverter fieldBookingDOToResponseConverter;
-//
-//    private BookingServiceImpl bookingService;
-//
-//    @Before
-//    public void initMocks() {
-//        MockitoAnnotations.initMocks(this);
-//        bookingService = new BookingServiceImpl(fieldBookingRepository, fieldBookingDOToResponseConverter);
-//    }
-//
-//    @Test
-//    public void testFindBookingByIdValid() {
-//        Optional<FieldBookingDO> mockDO = Optional.of(mock(FieldBookingDO.class));
-//        when(fieldBookingRepository.findById(123L)).thenReturn(mockDO);
-//        FieldBooking mockResponse = mock(FieldBooking.class);
-//        when(fieldBookingDOToResponseConverter.convert(mockDO.get())).thenReturn(mockResponse);
-//
-//        assertEquals(mockResponse, bookingService.findBookingById("123"));
-//    }
+    @Mock
+    private FieldBookingRepository fieldBookingRepository;
+
+    @Mock
+    private FieldBookingDOToResponseConverter fieldBookingDOToResponseConverter;
+
+    private BookingServiceImpl bookingService;
+
+    @Before
+    public void initMocks() {
+        MockitoAnnotations.initMocks(this);
+        bookingService = new BookingServiceImpl(fieldBookingRepository, fieldBookingDOToResponseConverter);
+    }
+
+    @Test
+    public void testFindBookingByIdValid() {
+        Optional<FieldBookingDO> mockDO = Optional.of(mock(FieldBookingDO.class));
+        when(fieldBookingRepository.findById(123L)).thenReturn(mockDO);
+        FieldBooking mockResponse = mock(FieldBooking.class);
+        when(fieldBookingDOToResponseConverter.convert(mockDO.get())).thenReturn(mockResponse);
+
+        assertEquals(mockResponse, bookingService.findBookingById("123"));
+    }
+
+	@Test
+    public void testCreateBookingValidRequest() {
+        BookingRequest testRequest = mock(BookingRequest.class);
+		List<BookingDetailRequest> detailList = new ArrayList<>();
+		detailList.add(mock(BookingDetailRequest.class));
+		when(testRequest.getBookingDetails()).thenReturn(detailList);
+        FieldBookingDO mockDO = mock(FieldBookingDO.class);
+        when(fieldBookingRepository.save(any(FieldBookingDO.class))).thenReturn(mockDO);
+        FieldBooking mockResponse = mock(FieldBooking.class);
+        when(fieldBookingDOToResponseConverter.convert(mockDO)).thenReturn(mockResponse);
+        assertEquals(mockResponse, bookingService.createBooking(testRequest));
+    }
 //
 //    @Test
 //    public void testFindBookingByFieldId() {
@@ -116,18 +130,6 @@ public class BookingServiceImplTest {
 //        assertTrue(ZonedDateTime.of(LocalDateTime.of
 //                        (2019, 05, 06, 01, 01, 01), ZoneId.of("UTC"))
 //                        .isEqual(timeInCapture.getValue()));
-//    }
-//
-//    @Test
-//    public void testCreateBookingValidRequest() {
-//        BookingRequest testRequest = mock(BookingRequest.class);
-//        when(testRequest.getTimeIn()).thenReturn("2019-03-10T15:16:15Z");
-//        ArgumentCaptor<FieldBookingDO> argumentCaptor = ArgumentCaptor.forClass(FieldBookingDO.class);
-//        FieldBookingDO mockDO = mock(FieldBookingDO.class);
-//        when(fieldBookingRepository.save(argumentCaptor.capture())).thenReturn(mockDO);
-//        FieldBooking mockResponse = mock(FieldBooking.class);
-//        when(fieldBookingDOToResponseConverter.convert(mockDO)).thenReturn(mockResponse);
-//        assertEquals(mockResponse, bookingService.createBooking(testRequest));
 //    }
 //
 //    @Test

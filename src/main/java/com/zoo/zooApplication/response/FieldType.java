@@ -17,7 +17,7 @@ import java.util.List;
 public class FieldType {
 
     @ApiModelProperty(value = "The unique identifier of the field type", readOnly = true)
-    private long id;
+    private Long id;
 
     @ApiModelProperty(value = "The name given for the field type", readOnly = true)
     private String name;

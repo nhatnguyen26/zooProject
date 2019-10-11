@@ -31,6 +31,7 @@ public class FieldBookingDOToResponseConverter {
 			.bookerEmail(fieldBookingDO.getBookerEmail())
 			.bookerPhone(fieldBookingDO.getBookerPhone())
 			.regularBooker(fieldBookingDO.getRegularBooker())
+			.mainFieldType(fieldBookingDO.getMainFieldType())
 			.bookingDetails(convertBookingDetails(fieldBookingDO))
 			.build();
 	}
@@ -50,7 +51,6 @@ public class FieldBookingDOToResponseConverter {
 	private FieldBookingDetail convertBookingDetail(FieldBookingDO fieldBookingDO) {
 		return FieldBookingDetail.builder()
 			.fieldId(fieldBookingDO.getFieldId())
-			.mainFieldType(fieldBookingDO.getMainFieldType())
 			.fieldTypeId(fieldBookingDO.getFieldTypeId())
 			.timeIn(DateTimeUtil.formatISOTimeToString(fieldBookingDO.getTimeIn()))
 			.actualTimeIn(DateTimeUtil.formatISOTimeToString(fieldBookingDO.getActualTimeIn()))

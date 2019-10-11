@@ -2,6 +2,7 @@ package com.zoo.zooApplication.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.zoo.zooApplication.type.BookingStatusEnum;
+import com.zoo.zooApplication.type.MainFieldTypeEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -38,6 +39,9 @@ public class BookingRequest {
 
     @ApiModelProperty(value = "The actual amount got charged for this booking, there could be discount and extra. Default: VND")
     private Double actualChargedAmount;
+
+    @ApiModelProperty(value = "The main field type of the booking")
+    private MainFieldTypeEnum mainFieldType;
 
     @ApiModelProperty(value = "the booking details")
     private List<BookingDetailRequest> bookingDetails;
