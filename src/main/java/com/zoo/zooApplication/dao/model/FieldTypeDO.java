@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
@@ -20,7 +21,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -47,9 +50,6 @@ public class FieldTypeDO {
     @Column(name = "field_type_name")
     private String name;
 
-    @Column(updatable = false)
-    private Long courtId;
-
     @Column(nullable = false)
     @Convert(converter = DOTimestampConverter.class)
     @CreationTimestamp
@@ -60,13 +60,18 @@ public class FieldTypeDO {
     @UpdateTimestamp
     private ZonedDateTime updatedAt;
 
-    @OneToMany(targetEntity = PriceChartDO.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "fieldTypeId")
+    @ManyToOne(targetEntity = CourtDO.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "court_id", updatable = false)
+    private CourtDO court;
+
+    @OneToMany(targetEntity = PriceChartDO.class, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "fieldType", fetch = FetchType.LAZY)
+    @BatchSize(size = 100)
+    @OrderBy("id")
     private final List<PriceChartDO> priceCharts = new ArrayList<>();
 
     public FieldTypeDO addPriceChart(PriceChartDO priceChartDO){
         getPriceCharts().add(priceChartDO);
-        priceChartDO.setFieldTypeId(this.getId());
+        priceChartDO.setFieldType(this);
         return this;
     }
 }

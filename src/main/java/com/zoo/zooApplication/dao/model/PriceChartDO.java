@@ -14,9 +14,12 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.time.ZonedDateTime;
 
@@ -34,9 +37,6 @@ public class PriceChartDO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(updatable = false)
-    private Long fieldTypeId;
 
     @Column
     private Double priceAmount;
@@ -59,5 +59,9 @@ public class PriceChartDO {
     @Convert(converter = DOTimestampConverter.class)
     @UpdateTimestamp
     private ZonedDateTime updatedAt;
+
+    @ManyToOne(targetEntity = FieldTypeDO.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "field_type_id", updatable = false)
+    private FieldTypeDO fieldType;
 
 }

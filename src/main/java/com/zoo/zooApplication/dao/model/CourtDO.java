@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.SelectBeforeUpdate;
@@ -19,13 +20,13 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Optional;
+import java.util.Set;
 
 @Entity
 @Table(name = "courts")
@@ -74,13 +75,14 @@ public class CourtDO {
     @UpdateTimestamp
     private ZonedDateTime updatedAt;
 
-    @OneToMany(targetEntity = FieldDO.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "courtId")
-    private final List<FieldDO> fields = new ArrayList<>();
+    @OneToMany(targetEntity = FieldDO.class, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "court", fetch = FetchType.LAZY)
+    @BatchSize(size = 100)
+    @OrderBy("id")
+    private final Set<FieldDO> fields = new LinkedHashSet<>();
 
     public CourtDO addField(FieldDO fieldDO) {
         getFields().add(fieldDO);
-        fieldDO.setCourtId(this.getId());
+        fieldDO.setCourt(this);
         return this;
     }
 
@@ -91,13 +93,14 @@ public class CourtDO {
 			.findFirst();
     }
 
-    @OneToMany(targetEntity = FieldTypeDO.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "courtId")
-    private final List<FieldTypeDO> fieldTypes = new ArrayList<>();
+    @OneToMany(targetEntity = FieldTypeDO.class, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "court", fetch = FetchType.LAZY)
+    @BatchSize(size = 100)
+    @OrderBy("id")
+    private final Set<FieldTypeDO> fieldTypes = new LinkedHashSet<>();
 
     public CourtDO addFieldType(FieldTypeDO fieldTypeDO){
         getFieldTypes().add(fieldTypeDO);
-        fieldTypeDO.setCourtId(this.getId());
+        fieldTypeDO.setCourt(this);
         return this;
     }
 

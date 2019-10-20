@@ -16,7 +16,7 @@ public class CourtDOTest {
 		FieldDO mockFieldDO = mock(FieldDO.class);
 		assertEquals(courtDO, courtDO.addField(mockFieldDO));
 		assertEquals(Arrays.asList(new FieldDO[]{mockFieldDO}), courtDO.getFields());
-		verify(mockFieldDO, times(1)).setCourtId(1L);
+		verify(mockFieldDO, times(1)).setCourt(courtDO);
 	}
 
 	@Test
@@ -35,7 +35,7 @@ public class CourtDOTest {
 		FieldTypeDO mockFieldTypeDO = mock(FieldTypeDO.class);
 		assertEquals(courtDO, courtDO.addFieldType(mockFieldTypeDO));
 		assertEquals(Arrays.asList(new FieldTypeDO[]{mockFieldTypeDO}), courtDO.getFieldTypes());
-		verify(mockFieldTypeDO, times(1)).setCourtId(1L);
+		verify(mockFieldTypeDO, times(1)).setCourt(courtDO);
 	}
 
 	@Test
