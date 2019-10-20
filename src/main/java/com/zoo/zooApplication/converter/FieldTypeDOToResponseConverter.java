@@ -1,16 +1,13 @@
 package com.zoo.zooApplication.converter;
 
 import com.zoo.zooApplication.dao.model.FieldTypeDO;
-import com.zoo.zooApplication.response.FieldResponse;
 import com.zoo.zooApplication.response.FieldType;
 import com.zoo.zooApplication.response.FieldTypeResponse;
 import com.zoo.zooApplication.response.PriceChart;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;

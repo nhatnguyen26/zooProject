@@ -10,12 +10,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class CourtDOToResponseConverterTest {
 
@@ -98,23 +98,27 @@ public class CourtDOToResponseConverterTest {
 
     @Test
     public void testConvertWithEmptyField() {
-        when(courtDO.getFields()).thenReturn(new ArrayList<>());
+        when(courtDO.getFields()).thenReturn(new LinkedHashSet<>());
         Court court = testConverter.convert(courtDO);
         assertTrue(court.getFields().isEmpty());
     }
 
     @Test
     public void testConvertWithSomeFields() {
-        List<FieldDO> mockList = new ArrayList<>();
-        mockList.add(mock(FieldDO.class));
-        mockList.add(mock(FieldDO.class));
+        Set<FieldDO> mockList = new LinkedHashSet<>();
+        FieldDO firstDO = mock(FieldDO.class);
+        mockList.add(firstDO);
+        FieldDO secondDO = mock(FieldDO.class);
+        mockList.add(secondDO);
 
         List<Field> expectList = new ArrayList<>();
-        expectList.add(mock(Field.class));
-        expectList.add(mock(Field.class));
+        Field firstField = mock(Field.class);
+        expectList.add(firstField);
+        Field secondField = mock(Field.class);
+        expectList.add(secondField);
 
-        when(fieldDOToResponseConverter.convert(mockList.get(0))).thenReturn(expectList.get(0));
-        when(fieldDOToResponseConverter.convert(mockList.get(1))).thenReturn(expectList.get(1));
+        when(fieldDOToResponseConverter.convert(firstDO)).thenReturn(firstField);
+        when(fieldDOToResponseConverter.convert(secondDO)).thenReturn(secondField);
 
         when(courtDO.getFields()).thenReturn(mockList);
         Court court = testConverter.convert(courtDO);
@@ -123,23 +127,27 @@ public class CourtDOToResponseConverterTest {
 
     @Test
     public void testConvertWithEmptyFieldType() {
-        when(courtDO.getFields()).thenReturn(new ArrayList<>());
+        when(courtDO.getFields()).thenReturn(new LinkedHashSet<>());
         Court court = testConverter.convert(courtDO);
         assertTrue(court.getFieldTypes().isEmpty());
     }
 
     @Test
     public void testConvertWithSomeFieldTypes() {
-        List<FieldTypeDO> mockList = new ArrayList<>();
-        mockList.add(mock(FieldTypeDO.class));
-        mockList.add(mock(FieldTypeDO.class));
+        Set<FieldTypeDO> mockList = new LinkedHashSet<>();
+        FieldTypeDO firstDO = mock(FieldTypeDO.class);
+        mockList.add(firstDO);
+        FieldTypeDO secondDO = mock(FieldTypeDO.class);
+        mockList.add(secondDO);
 
         List<FieldType> expectList = new ArrayList<>();
-        expectList.add(mock(FieldType.class));
-        expectList.add(mock(FieldType.class));
+        FieldType firstFieldType = mock(FieldType.class);
+        expectList.add(firstFieldType);
+        FieldType secondFieldType = mock(FieldType.class);
+        expectList.add(secondFieldType);
 
-        when(fieldTypeDOToResponseConverter.convert(mockList.get(0))).thenReturn(expectList.get(0));
-        when(fieldTypeDOToResponseConverter.convert(mockList.get(1))).thenReturn(expectList.get(1));
+        when(fieldTypeDOToResponseConverter.convert(firstDO)).thenReturn(firstFieldType);
+        when(fieldTypeDOToResponseConverter.convert(secondDO)).thenReturn(secondFieldType);
 
         when(courtDO.getFieldTypes()).thenReturn(mockList);
         Court court = testConverter.convert(courtDO);

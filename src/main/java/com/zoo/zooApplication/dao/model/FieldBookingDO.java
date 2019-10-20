@@ -10,9 +10,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.SelectBeforeUpdate;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -27,6 +27,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -125,8 +126,10 @@ public class FieldBookingDO {
 	@JoinColumn(name = "parentBookingId")
 	private FieldBookingDO parent;
 
-    @OneToMany(targetEntity = FieldBookingDO.class, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "parent", fetch = FetchType.LAZY)
-    private final List<FieldBookingDO> subBookings = new ArrayList<>();
+	@OneToMany(targetEntity = FieldBookingDO.class, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "parent", fetch = FetchType.LAZY)
+	@BatchSize(size = 100)
+	@OrderBy("time_in")
+	private final List<FieldBookingDO> subBookings = new ArrayList<>();
 
     public FieldBookingDO addSubBooking(FieldBookingDO fieldBookingDO) {
         getSubBookings().add(fieldBookingDO);

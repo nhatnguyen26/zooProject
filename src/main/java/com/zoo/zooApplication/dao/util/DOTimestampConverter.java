@@ -5,7 +5,6 @@ import javax.persistence.Converter;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Objects;
 
 @Converter(autoApply = true)
 public class DOTimestampConverter implements AttributeConverter<ZonedDateTime, Long> {

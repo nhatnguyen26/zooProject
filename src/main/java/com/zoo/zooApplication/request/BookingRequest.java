@@ -1,7 +1,6 @@
 package com.zoo.zooApplication.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.zoo.zooApplication.type.BookingStatusEnum;
 import com.zoo.zooApplication.type.MainFieldTypeEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

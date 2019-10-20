@@ -14,7 +14,6 @@ import com.zoo.zooApplication.dao.repository.CourtRepository;
 import com.zoo.zooApplication.dao.repository.CourtUserRoleRepository;
 import com.zoo.zooApplication.dao.repository.FieldRepository;
 import com.zoo.zooApplication.dao.repository.FieldTypeRepository;
-import com.zoo.zooApplication.dao.repository.PriceChartRepository;
 import com.zoo.zooApplication.request.ClaimKeyRequest;
 import com.zoo.zooApplication.request.CreateCourtRequest;
 import com.zoo.zooApplication.request.CreateFieldRequest;
@@ -26,7 +25,6 @@ import com.zoo.zooApplication.response.Court;
 import com.zoo.zooApplication.response.CourtsResponse;
 import com.zoo.zooApplication.response.Field;
 import com.zoo.zooApplication.response.FieldType;
-import com.zoo.zooApplication.response.PriceChart;
 import com.zoo.zooApplication.type.MainFieldTypeEnum;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,8 +34,10 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -518,7 +518,7 @@ public class CourtAndFieldServiceImplTest {
 		CourtDO mockCourt = mock(CourtDO.class);
 		FieldDO mockField = mock(FieldDO.class);
 		when(mockField.getId()).thenReturn(Long.valueOf(1));
-		List<FieldDO> fieldList = new ArrayList<>(Arrays.asList(mockField));
+		Set<FieldDO> fieldList = new LinkedHashSet<>(Arrays.asList(mockField));
 		when(mockCourt.getFields()).thenReturn(fieldList);
 		when(mockCourt.findFieldById(1L)).thenReturn(Optional.of(mockField));
 		when(courtRepository.findById(1L)).thenReturn(Optional.of(mockCourt));
@@ -720,7 +720,7 @@ public class CourtAndFieldServiceImplTest {
 		CourtDO mockCourt = mock(CourtDO.class);
 		FieldTypeDO mockFieldType = mock(FieldTypeDO.class);
 		when(mockFieldType.getId()).thenReturn(Long.valueOf(1));
-		List<FieldTypeDO> fieldTypeList = new ArrayList<>(Arrays.asList(mockFieldType));
+		Set<FieldTypeDO> fieldTypeList = new LinkedHashSet<>(Arrays.asList(mockFieldType));
 		when(mockCourt.getFieldTypes()).thenReturn(fieldTypeList);
 		when(mockCourt.findFieldTypeById(1L)).thenReturn(Optional.of(mockFieldType));
 		when(courtRepository.findById(1L)).thenReturn(Optional.of(mockCourt));

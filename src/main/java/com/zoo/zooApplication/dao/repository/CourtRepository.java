@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface CourtRepository extends JpaRepository<CourtDO, Long> {
+
 	List<CourtDO> findByIdIn(List<Long> allCourtId);
 }
