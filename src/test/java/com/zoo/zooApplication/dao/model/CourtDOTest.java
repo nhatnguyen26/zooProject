@@ -2,6 +2,7 @@ package com.zoo.zooApplication.dao.model;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -15,7 +16,7 @@ public class CourtDOTest {
 		CourtDO courtDO = CourtDO.builder().id(1L).build();
 		FieldDO mockFieldDO = mock(FieldDO.class);
 		assertEquals(courtDO, courtDO.addField(mockFieldDO));
-		assertEquals(Arrays.asList(new FieldDO[]{mockFieldDO}), courtDO.getFields());
+		assertEquals(Arrays.asList(new FieldDO[]{mockFieldDO}), new ArrayList<>(courtDO.getFields()));
 		verify(mockFieldDO, times(1)).setCourt(courtDO);
 	}
 
@@ -34,7 +35,7 @@ public class CourtDOTest {
 		CourtDO courtDO = CourtDO.builder().id(1L).build();
 		FieldTypeDO mockFieldTypeDO = mock(FieldTypeDO.class);
 		assertEquals(courtDO, courtDO.addFieldType(mockFieldTypeDO));
-		assertEquals(Arrays.asList(new FieldTypeDO[]{mockFieldTypeDO}), courtDO.getFieldTypes());
+		assertEquals(Arrays.asList(new FieldTypeDO[]{mockFieldTypeDO}), new ArrayList<>(courtDO.getFieldTypes()));
 		verify(mockFieldTypeDO, times(1)).setCourt(courtDO);
 	}
 
