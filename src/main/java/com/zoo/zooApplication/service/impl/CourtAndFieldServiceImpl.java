@@ -30,6 +30,7 @@ import com.zoo.zooApplication.response.FieldType;
 import com.zoo.zooApplication.response.FieldTypeResponse;
 import com.zoo.zooApplication.service.CourtAndFieldService;
 import com.zoo.zooApplication.type.CourtRoleEnum;
+import com.zoo.zooApplication.validator.CourtManagementValidator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -37,12 +38,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class CourtAndFieldServiceImpl implements CourtAndFieldService {
+
+	private CourtManagementValidator courtManagementValidator;
 
 	// NOTE: ideally the design is fit for nosql db but initially use sql as prototype but it make good sense for court and field to be belong to a same service
 	private CourtRepository courtRepository;
@@ -62,7 +67,8 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
 	private FieldTypeDOToResponseConverter fieldTypeDOToResponseConverter;
 
 	@Inject
-	public CourtAndFieldServiceImpl(CourtRepository courtRepository,
+	public CourtAndFieldServiceImpl(CourtManagementValidator courtManagementValidator,
+									CourtRepository courtRepository,
 									CourtClaimOTPRepository courtClaimOTPRepository,
 									FieldRepository fieldRepository,
 									FieldTypeRepository fieldTypeRepository,
@@ -70,6 +76,7 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
 									CourtDOToResponseConverter courtDOToResponseConverter,
 									FieldDOToResponseConverter fieldDOToResponseConverter,
 									FieldTypeDOToResponseConverter fieldTypeDOToResponseConverter) {
+		this.courtManagementValidator = courtManagementValidator;
 		this.courtRepository = courtRepository;
 		this.courtClaimOTPRepository = courtClaimOTPRepository;
 		this.fieldRepository = fieldRepository;
@@ -98,8 +105,7 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
 			.build();
 		courtClaimOTPRepository.save(courtClaimOTPDO);
 
-		Court court = courtDOToResponseConverter.convert(courtDO);
-		return court;
+		return courtDOToResponseConverter.convert(courtDO);
 	}
 
 	@Transactional
@@ -196,7 +202,7 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
 		List<CourtUserRoleDO> allCourtUserDO = courtUserRoleRepository.findByUid(uid);
 		List<Long> allCourtId = allCourtUserDO
 			.stream()
-			.map(courtUserRoleDO -> courtUserRoleDO.getCourtId())
+			.map(CourtUserRoleDO::getCourtId)
 			.collect(Collectors.toList());
 		List<CourtDO> allCourtDO = courtRepository.findByIdIn(allCourtId);
 		List<Court> allCourt = allCourtDO
@@ -214,8 +220,8 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
 	public Court findCourtByClaimKey(String claimKey) {
 		Optional<CourtClaimOTPDO> courtClaimOTPDOOpt = courtClaimOTPRepository.findByClaimKey(claimKey);
 		Optional<CourtDO> courtDO = courtClaimOTPDOOpt
-			.map(courtClaimOTPDO -> courtClaimOTPDO.getCourtId())
-			.flatMap(courtId -> courtRepository.findById(courtId));
+			.map(CourtClaimOTPDO::getCourtId)
+			.flatMap(courtRepository::findById);
 		return courtDO
 			.map(courtDOToResponseConverter::convert)
 			.orElse(null);
@@ -226,7 +232,7 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
 	public ClaimKey findClaimKeyByCourtId(String courtId) {
 		Optional<CourtClaimOTPDO> courtClaimOTP = courtClaimOTPRepository.findById(NumberUtils.toLong(courtId));
 		String claimKey = courtClaimOTP
-			.map(courtClaimOTPDO -> courtClaimOTPDO.getClaimKey())
+			.map(CourtClaimOTPDO::getClaimKey)
 			.orElse(null);
 		return ClaimKey
 			.builder()
@@ -237,8 +243,9 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
 	@Transactional
 	@Override
 	public Court addFieldToCourt(String courtId, CreateFieldRequest createFieldRequest) {
-		// TODO: eventually, will need to validate CreateFieldRequest, right now assume input correct
 		Optional<CourtDO> court = courtRepository.findById(NumberUtils.toLong(courtId));
+
+		courtManagementValidator.validateCreateFieldRequest(court, createFieldRequest);
 
 		return court
 			.map(courtDO -> addFieldDO(courtDO, createFieldRequest.getFieldRequests()))
@@ -257,9 +264,9 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
 					.name(request.getName())
 					.mainFieldType(request.getMainFieldType())
 					.fieldTypeId(request.getFieldTypeId())
-					.subFieldIds(request.getSubFieldIds())
+					.subFieldIds(new LinkedHashSet<>(request.getSubFieldIds()))
 					.build())
-				.forEach(fieldDO -> courtDO.addField(fieldDO));
+				.forEach(courtDO::addField);
 		}
 		return courtDO;
 	}
@@ -268,7 +275,7 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
 	@Override
 	public FieldResponse getAllFieldsInCourt(String courtId) {
 		List<FieldDO> fieldDOList = fieldRepository.findAllByCourtId(NumberUtils.toLong(courtId));
-		return fieldDOToResponseConverter.convert(fieldDOList);
+		return fieldDOToResponseConverter.convertToResponse(fieldDOList);
 	}
 
 	@Transactional
@@ -299,7 +306,7 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
 		}
 
 		if (CollectionUtils.isNotEmpty(fieldRequest.getSubFieldIds())) {
-			fieldDO.setSubFieldIds(fieldRequest.getSubFieldIds());
+			fieldDO.setSubFieldIds(new HashSet<>(fieldRequest.getSubFieldIds()));
 		}
 		return fieldDO;
 	}
@@ -343,8 +350,8 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
 		if (CollectionUtils.isNotEmpty(fieldTypeRequests)) {
 			fieldTypeRequests
 				.stream()
-				.map(request -> buildFieldType(request))
-				.forEach(fieldTypeDO -> courtDO.addFieldType(fieldTypeDO));
+				.map(this::buildFieldType)
+				.forEach(courtDO::addFieldType);
 		}
 		return courtDO;
 	}
@@ -356,11 +363,10 @@ public class CourtAndFieldServiceImpl implements CourtAndFieldService {
 			.build();
 
 		if (CollectionUtils.isNotEmpty(fieldTypeRequest.getPriceChartRequests())) {
-			fieldTypeRequest
-				.getPriceChartRequests()
+			fieldTypeRequest.getPriceChartRequests()
 				.stream()
-				.map(priceChartRequest -> buildPriceChart(priceChartRequest))
-				.forEach(priceChartDO -> fieldTypeDO.addPriceChart(priceChartDO));
+				.map(this::buildPriceChart)
+				.forEach(fieldTypeDO::addPriceChart);
 
 		}
 

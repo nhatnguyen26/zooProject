@@ -120,10 +120,12 @@ public class CourtManagementResourceTest {
     @Test
     public void testAddFieldToCourt() {
         CourtManagementResource resource = new CourtManagementResource(mockCourtAndFieldService);
+		IFirebaseAuth mockFirebaseAuth = mock(IFirebaseAuth.class);
         Court expectCourt = mock(Court.class);
         CreateFieldRequest mockRequest = mock(CreateFieldRequest.class);
         when(mockCourtAndFieldService.addFieldToCourt("123", mockRequest)).thenReturn(expectCourt);
-        assertEquals(expectCourt, resource.addFieldToCourt("123", mockRequest));
+        assertEquals(expectCourt, resource.addFieldToCourt("123", mockRequest, mockFirebaseAuth));
+		verify(mockRequest, times(1)).setFirebaseAuth(mockFirebaseAuth);
     }
 
 	@Test

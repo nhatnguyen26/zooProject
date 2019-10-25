@@ -26,6 +26,7 @@ import com.zoo.zooApplication.response.CourtsResponse;
 import com.zoo.zooApplication.response.Field;
 import com.zoo.zooApplication.response.FieldType;
 import com.zoo.zooApplication.type.MainFieldTypeEnum;
+import com.zoo.zooApplication.validator.CourtManagementValidator;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -43,6 +44,9 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class CourtAndFieldServiceImplTest {
+
+	@Mock
+	private CourtManagementValidator courtManagementValidator;
 
 	@Mock
 	private CourtRepository courtRepository;
@@ -73,7 +77,7 @@ public class CourtAndFieldServiceImplTest {
 	@Before
 	public void initMocks() {
 		MockitoAnnotations.initMocks(this);
-		courtAndFieldService = new CourtAndFieldServiceImpl(courtRepository, courtClaimOTPRepository, fieldRepository,
+		courtAndFieldService = new CourtAndFieldServiceImpl(courtManagementValidator, courtRepository, courtClaimOTPRepository, fieldRepository,
 			fieldTypeRepository,
 			courtUserRoleRepository, courtDOToResponseConverter, fieldDOToResponseConverter, fieldTypeDOToResponseConverter);
 	}
@@ -416,7 +420,7 @@ public class CourtAndFieldServiceImplTest {
 		assertEquals(MainFieldTypeEnum.SOCCER_7, fieldValue.get(1).getMainFieldType());
 		assertEquals(MainFieldTypeEnum.SOCCER_11, fieldValue.get(2).getMainFieldType());
 		assertEquals(Long.valueOf(456), fieldValue.get(2).getFieldTypeId());
-		assertEquals(Arrays.asList(123L, 456L), fieldValue.get(2).getSubFieldIds());
+		assertEquals(Set.of(123L, 456L), fieldValue.get(2).getSubFieldIds());
 	}
 
 	@Test
@@ -495,7 +499,7 @@ public class CourtAndFieldServiceImplTest {
 		when(fieldRepository.save(mockField)).thenReturn(mockField);
 		when(fieldDOToResponseConverter.convert(mockField)).thenReturn(expectField);
 		assertEquals(expectField, courtAndFieldService.editField("1", "1", fieldRequest));
-		verify(mockField, times(1)).setSubFieldIds(Arrays.asList(Long.valueOf(123), Long.valueOf(121)));
+		verify(mockField, times(1)).setSubFieldIds(Set.of(Long.valueOf(123), Long.valueOf(121)));
 		verifyNoMoreInteractions(mockField);
 	}
 

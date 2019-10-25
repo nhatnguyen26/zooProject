@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.Ordered;
 
 import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -17,7 +18,7 @@ import javax.ws.rs.ext.Provider;
  */
 @ZooMasterAuthentication
 @Provider
-@Priority(Ordered.LOWEST_PRECEDENCE)
+@Priority(Priorities.AUTHENTICATION)
 public class ZooMasterAuthFilter implements ContainerRequestFilter {
 
 	@Autowired

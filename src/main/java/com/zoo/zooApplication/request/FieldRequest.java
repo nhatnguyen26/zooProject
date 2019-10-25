@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -24,5 +25,5 @@ public class FieldRequest {
     private MainFieldTypeEnum mainFieldType;
 
     @ApiModelProperty(value = "The list of field ids that make up this field")
-    private List<Long> subFieldIds;
+    private List<Long> subFieldIds = new ArrayList<>();
 }

@@ -7,6 +7,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.moesif.servlet.MoesifFilter;
 import com.zoo.zooApplication.application.filter.FirebaseAuthFilter;
 import com.zoo.zooApplication.application.filter.ZooMasterAuthFilter;
+import com.zoo.zooApplication.exception.ForbiddenAccessExceptionMapper;
+import com.zoo.zooApplication.exception.InvalidRequestExceptionMapper;
 import com.zoo.zooApplication.firebaseadaptor.FirebaseAuthBinder;
 import com.zoo.zooApplication.resource.BookingResource;
 import com.zoo.zooApplication.resource.CourtManagementResource;
@@ -20,14 +22,17 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.web.filter.CommonsRequestLoggingFilter;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.Filter;
 import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.Priorities;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +51,8 @@ public class ZooServiceConfiguration extends ResourceConfig {
 		register(FirebaseAuthFilter.class);
 		register(new FirebaseAuthBinder());
 		register(ZooMasterAuthFilter.class);
+		register(InvalidRequestExceptionMapper.class);
+		register(ForbiddenAccessExceptionMapper.class);
 	}
 
 	@PostConstruct
@@ -93,15 +100,31 @@ public class ZooServiceConfiguration extends ResourceConfig {
 	}
 
 	@Bean
-	@ConditionalOnProperty(value = "MOESIF_APPLICATION_ID")
-	public Filter moesifFilter(@Value("${MOESIF_APPLICATION_ID:false}") String moesifAppId) {
-		return new MoesifFilter(moesifAppId);
-	}
-
-	@Bean
 	@ConditionalOnBean(value = FirebaseApp.class)
 	public FirebaseAuth getFirebaseAuth(@Autowired FirebaseApp firebaseApp) throws IOException {
 		return FirebaseAuth.getInstance(firebaseApp);
+	}
+
+	@Bean
+	@ConditionalOnProperty(value = "MOESIF_APPLICATION_ID")
+	public FilterRegistrationBean moesifFilter(@Value("${MOESIF_APPLICATION_ID:false}") String moesifAppId) {
+		FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+		MoesifFilter moesifFilter = new MoesifFilter(moesifAppId);
+		registrationBean.setFilter(moesifFilter);
+		registrationBean.setOrder(Priorities.USER);
+		return registrationBean;
+	}
+
+	@Bean
+	public FilterRegistrationBean requestLoggingFilter() {
+		FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+		CommonsRequestLoggingFilter requestLoggingFilter = new CommonsRequestLoggingFilter();
+		requestLoggingFilter.setIncludeClientInfo(true);
+		requestLoggingFilter.setIncludeQueryString(true);
+		registrationBean.setFilter(requestLoggingFilter);
+		// run first and last to mark start and end of request
+		registrationBean.setOrder(Priorities.AUTHENTICATION - 1);
+		return registrationBean;
 	}
 
 }

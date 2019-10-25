@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 
 import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -21,7 +22,7 @@ import java.io.IOException;
 
 @FirebaseAuthentication // use for method name binding
 @Provider
-@Priority(Ordered.LOWEST_PRECEDENCE)
+@Priority(Priorities.AUTHENTICATION)
 public class FirebaseAuthFilter implements ContainerRequestFilter {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FirebaseAuthFilter.class);

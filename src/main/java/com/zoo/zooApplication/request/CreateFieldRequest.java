@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @ApiModel(value = "CreateFieldRequest", description = "The request to add field(s) to a court")
-public class CreateFieldRequest {
+public class CreateFieldRequest extends UserBasedRequest {
 
     @ApiModelProperty(value = "List of field request to add to a court")
     private List<FieldRequest> fieldRequests;

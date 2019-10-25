@@ -47,11 +47,8 @@ public class CourtDOToResponseConverter {
 
     private List<Field> convertFields(CourtDO courtDO) {
         if (CollectionUtils.isNotEmpty(courtDO.getFields())) {
-            return courtDO
-                    .getFields()
-                    .stream()
-                    .map(fieldDOToResponseConverter::convert)
-                    .collect(Collectors.toList());
+            // use the bulk convert for efficiency of relation building
+            return fieldDOToResponseConverter.convert(courtDO.getFields());
         }
         return Collections.emptyList();
     }

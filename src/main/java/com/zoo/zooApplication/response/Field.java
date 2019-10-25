@@ -29,7 +29,13 @@ public class Field {
     @ApiModelProperty(value = "The field type this field belong to", readOnly = true)
     private Long fieldTypeId;
 
-    @ApiModelProperty(value = "The list of field id that combine to this field, if this list is present mean that this field is not a unit field ", readOnly = true)
+    @ApiModelProperty(value = "The list of field id that combine to this field", readOnly = true)
     private List<Long> subFieldIds;
+
+    @ApiModelProperty(value = "The list of field id that this field is a part of ", readOnly = true)
+    private List<Long> partOfFieldIds;
+
+    @ApiModelProperty(value = "The list of field id that this field has a mutually block, that is if this field is blocked, all those field will be blocked, vice versa, if any field from list block, this field is blocked", readOnly = true)
+    private List<Long> coBlockingFieldIds;
 
 }

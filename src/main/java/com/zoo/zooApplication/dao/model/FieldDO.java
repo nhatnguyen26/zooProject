@@ -1,7 +1,7 @@
 package com.zoo.zooApplication.dao.model;
 
 import com.zoo.zooApplication.dao.util.DOTimestampConverter;
-import com.zoo.zooApplication.dao.util.IdListToStringAttributeConverter;
+import com.zoo.zooApplication.dao.util.IdSetToStringAttributeConverter;
 import com.zoo.zooApplication.dao.util.MainFieldTypeEnumConverter;
 import com.zoo.zooApplication.type.MainFieldTypeEnum;
 import lombok.AllArgsConstructor;
@@ -25,7 +25,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.time.ZonedDateTime;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "fields")
@@ -54,8 +55,8 @@ public class FieldDO {
     private Long fieldTypeId;
 
     @Column
-    @Convert(converter = IdListToStringAttributeConverter.class)
-    private List<Long> subFieldIds;
+    @Convert(converter = IdSetToStringAttributeConverter.class)
+    private Set<Long> subFieldIds = new LinkedHashSet<>();
 
     @Column(nullable = false)
     @Convert(converter = DOTimestampConverter.class)

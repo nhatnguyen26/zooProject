@@ -12,6 +12,7 @@ import com.zoo.zooApplication.request.FieldTypeRequest;
 import com.zoo.zooApplication.response.ClaimKey;
 import com.zoo.zooApplication.response.Court;
 import com.zoo.zooApplication.response.CourtsResponse;
+import com.zoo.zooApplication.response.ErrorMessage;
 import com.zoo.zooApplication.response.Field;
 import com.zoo.zooApplication.response.FieldResponse;
 import com.zoo.zooApplication.response.FieldType;
@@ -168,7 +169,11 @@ public class CourtManagementResource {
     }
 
     @ApiOperation(value = "add a new field to the court", response = Court.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Successfully added the field to court", response = Court.class)})
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Successfully added the field to court", response = Court.class),
+        @ApiResponse(code = 400, message = "There is some error in the request", response = ErrorMessage.class),
+        @ApiResponse(code = 403, message = "Current user do not have access to resource", response = ErrorMessage.class),
+    })
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/courts/{courtId}/fields")
@@ -176,7 +181,8 @@ public class CourtManagementResource {
     @ApiImplicitParams({
         @ApiImplicitParam(name = "X-Authorization-Firebase", paramType = "header", dataTypeClass = String.class)
     })
-    public Court addFieldToCourt(@PathParam("courtId") String courtId, @RequestBody CreateFieldRequest createFieldRequest) {
+    public Court addFieldToCourt(@PathParam("courtId") String courtId, @RequestBody CreateFieldRequest createFieldRequest, @Context IFirebaseAuth userAuth) {
+        createFieldRequest.setFirebaseAuth(userAuth);
         return courtAndFieldService.addFieldToCourt(courtId, createFieldRequest);
     }
 

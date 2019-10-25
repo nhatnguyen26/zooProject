@@ -1,7 +1,8 @@
 package com.zoo.zooApplication.exception;
 
-public class InvalidRequestException extends RuntimeException {
-    public InvalidRequestException(String message) {
-        super(message);
+public class InvalidRequestException extends BaseErrorIdException {
+
+    public InvalidRequestException(long errorId, String message) {
+        super(errorId, message);
     }
 }

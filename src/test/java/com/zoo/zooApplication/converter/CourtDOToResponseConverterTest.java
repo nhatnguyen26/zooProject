@@ -117,8 +117,7 @@ public class CourtDOToResponseConverterTest {
         Field secondField = mock(Field.class);
         expectList.add(secondField);
 
-        when(fieldDOToResponseConverter.convert(firstDO)).thenReturn(firstField);
-        when(fieldDOToResponseConverter.convert(secondDO)).thenReturn(secondField);
+        when(fieldDOToResponseConverter.convert(mockList)).thenReturn(expectList);
 
         when(courtDO.getFields()).thenReturn(mockList);
         Court court = testConverter.convert(courtDO);
