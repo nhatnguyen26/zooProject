@@ -20,6 +20,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.ZonedDateTime;
 
@@ -34,8 +35,10 @@ import java.time.ZonedDateTime;
 @SelectBeforeUpdate(false)
 public class PriceChartDO {
 
+    // use sequence since Field has mainly bulk support so want to leverage batch
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "price_charts_id_seq", sequenceName = "price_charts_id_seq", allocationSize = 20)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "price_charts_id_seq")
     private Long id;
 
     @Column

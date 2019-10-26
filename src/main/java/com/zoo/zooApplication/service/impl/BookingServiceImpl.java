@@ -51,15 +51,15 @@ public class BookingServiceImpl implements BookingService {
 	public FieldBooking createBooking(BookingRequest bookingRequest) {
 		FieldBookingDO.FieldBookingDOBuilder doBuilder = FieldBookingDO.builder()
 			.courtId(bookingRequest.getCourtId())
+			.bookerName(bookingRequest.getBookerName())
 			.bookerPhone(bookingRequest.getBookerPhone())
 			.bookerEmail(bookingRequest.getBookerEmail())
-			.bookerName(bookingRequest.getBookerName())
 			.regularBooker(bookingRequest.getRegularBooker())
 			.priceAmount(bookingRequest.getPriceAmount())
 			.depositAmount(bookingRequest.getDepositAmount())
 			.actualChargedAmount(bookingRequest.getActualChargedAmount())
-			.currencyId("VND")
-			.mainFieldType(bookingRequest.getMainFieldType()); // NOTE; hard-code to VND
+			.currencyId("VND")  // NOTE; hard-code to VND
+			.mainFieldType(bookingRequest.getMainFieldType());
 
 		FieldBookingDO doToSave = createSingleBooking(doBuilder, bookingRequest.getBookingDetails().get(0));
 		if (bookingRequest.getBookingDetails().size() > 1) {
@@ -107,11 +107,11 @@ public class BookingServiceImpl implements BookingService {
 	}
 
 	private FieldBookingDO editBookingInfo(FieldBookingDO fieldBookingDO, BookingRequest editBookingRequest) {
-		if (StringUtils.isNotBlank(editBookingRequest.getBookerEmail())) {
-			fieldBookingDO.setBookerEmail(editBookingRequest.getBookerEmail());
-		}
 		if (StringUtils.isNotBlank(editBookingRequest.getBookerName())) {
 			fieldBookingDO.setBookerName(editBookingRequest.getBookerName());
+		}
+		if (StringUtils.isNotBlank(editBookingRequest.getBookerEmail())) {
+			fieldBookingDO.setBookerEmail(editBookingRequest.getBookerEmail());
 		}
 		if (StringUtils.isNotBlank(editBookingRequest.getBookerPhone())) {
 			fieldBookingDO.setBookerPhone(editBookingRequest.getBookerPhone());
@@ -119,7 +119,9 @@ public class BookingServiceImpl implements BookingService {
 		if (editBookingRequest.getRegularBooker() != null) {
 			fieldBookingDO.setRegularBooker(editBookingRequest.getRegularBooker());
 		}
-
+		if (editBookingRequest.getPriceAmount() != null) {
+			fieldBookingDO.setPriceAmount(editBookingRequest.getPriceAmount());
+		}
 		if (editBookingRequest.getActualChargedAmount() != null) {
 			fieldBookingDO.setActualChargedAmount(editBookingRequest.getActualChargedAmount());
 		}

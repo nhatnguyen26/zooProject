@@ -20,4 +20,9 @@ public class DateTimeUtilTest {
     public void testParseISO8601FormatNull() {
         assertNull(DateTimeUtil.parseISO8601Format(null));
     }
+
+    @Test
+    public void testFormatDateTime() {
+        assertEquals("2019-03-10T21:06:28Z", DateTimeUtil.formatISOTimeToString(ZonedDateTime.of(LocalDateTime.of(2019, 03, 10, 21, 06, 28), (ZoneId.of("UTC")))));
+    }
 }

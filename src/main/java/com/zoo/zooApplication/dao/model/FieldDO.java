@@ -23,6 +23,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.time.ZonedDateTime;
 import java.util.LinkedHashSet;
@@ -39,8 +40,10 @@ import java.util.Set;
 @SelectBeforeUpdate(false)
 public class FieldDO {
 
+    // use sequence since Field has mainly bulk support so want to leverage batch
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "fields_id_seq", sequenceName = "fields_id_seq", allocationSize = 20)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "fields_id_seq")
     private Long id;
 
     // name is SQL keyword

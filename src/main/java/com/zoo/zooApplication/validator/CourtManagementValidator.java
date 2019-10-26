@@ -46,8 +46,10 @@ public class CourtManagementValidator {
 		}
 
 		for (FieldRequest fieldRequest : createFieldRequest.getFieldRequests()) {
-			if (new HashSet<>(fieldRequest.getSubFieldIds()).size() < 2) {
-				throw new InvalidRequestException(1002, String.format("Sub fields need to be more than two uniques field"));
+			if (CollectionUtils.isNotEmpty(fieldRequest.getSubFieldIds())) {
+				if (new HashSet<>(fieldRequest.getSubFieldIds()).size() < 2) {
+					throw new InvalidRequestException(1002, String.format("Sub fields need to be more than two uniques field"));
+				}
 			}
 		}
 

@@ -22,14 +22,14 @@ public class SearchFieldBookingRequest {
     @ApiParam(value = "filter by main field type")
     private MainFieldTypeEnum mainFieldType;
 
-    @QueryParam("limit")
+    @QueryParam("pageSize")
     @DefaultValue(value = "100")
     @ApiParam(value = "page size", defaultValue = "100")
-    private int limit;
+    private int pageSize;
 
-    @QueryParam("offset")
-    @ApiParam(value = "pagination offset", defaultValue = "0")
-    private int offset;
+    @QueryParam("page")
+    @ApiParam(value = "pagination offset, 0-index", defaultValue = "0")
+    private int page;
 
     @QueryParam("timeFrom")
     @ApiParam(value = "lower bound for time range in format YYYY-MM-ddTHH:mm:ssZ (ISO-8601) in UTC", example = "2019-10-06T22:39:10Z", required = true)
@@ -40,6 +40,6 @@ public class SearchFieldBookingRequest {
     private String timeTo;
 
     public Pageable getPageable(){
-        return PageRequest.of(offset, limit);
+        return PageRequest.of(page, pageSize);
     }
 }
