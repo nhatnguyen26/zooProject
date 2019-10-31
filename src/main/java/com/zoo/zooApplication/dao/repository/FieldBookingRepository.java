@@ -30,5 +30,15 @@ public interface FieldBookingRepository extends JpaRepository<FieldBookingDO, Lo
 	Page<FieldBookingDO> findByCourtIdAndMainFieldTypeWithTimeRange
 		(Long courtId, Integer mainFieldTypeId, Long lowerBound, Long upperBound, Pageable pageable);
 
+	@Query(value = "SELECT * FROM field_bookings fb WHERE fb.court_id = ?1 AND fb.booker_email = ?2 AND fb.time_in >= ?3 AND fb.time_in <= ?4 AND fb.parent_booking_id is NULL ORDER BY fb.time_in ASC, fb.id ASC",
+		countQuery = "SELECT count(*) FROM field_bookings fb WHERE fb.court_id = ?1 AND fb.booker_email = ?2 AND fb.time_in >= ?3 AND fb.time_in <= ?4 AND fb.parent_booking_id is NULL",
+		nativeQuery = true)
+	Page<FieldBookingDO> findByCourtIdAndBookerEmailWithTimeRange
+		(Long courtId, String bookerEmail, Long lowerBound, Long upperBound, Pageable pageable);
 
+	@Query(value = "SELECT * FROM field_bookings fb WHERE fb.court_id = ?1 AND fb.booker_phone = ?2 AND fb.time_in >= ?3 AND fb.time_in <= ?4 AND fb.parent_booking_id is NULL ORDER BY fb.time_in ASC, fb.id ASC",
+		countQuery = "SELECT count(*) FROM field_bookings fb WHERE fb.court_id = ?1 AND fb.booker_phone = ?2 AND fb.time_in >= ?3 AND fb.time_in <= ?4 AND fb.parent_booking_id is NULL",
+		nativeQuery = true)
+	Page<FieldBookingDO> findByCourtIdAndBookerPhoneWithTimeRange
+		(Long courtId, String bookerPhone, Long lowerBound, Long upperBound, Pageable pageable);
 }

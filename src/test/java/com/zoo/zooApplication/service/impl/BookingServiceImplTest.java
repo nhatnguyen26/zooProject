@@ -18,9 +18,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -271,6 +269,7 @@ public class BookingServiceImplTest {
     @Test
     public void testSearchWithinCourt() {
         SearchFieldBookingRequest searchRequest = new SearchFieldBookingRequest();
+        searchRequest.setSearchType(SearchFieldBookingRequest.SearchTypeEnum.COURT);
         searchRequest.setCourtId("1");
         searchRequest.setTimeFrom("2019-10-06T22:50:15Z");
         searchRequest.setTimeTo("2019-10-06T22:50:20Z");
@@ -286,12 +285,33 @@ public class BookingServiceImplTest {
         FieldBookingResponse expectResponse = bookingService.search(searchRequest);
         assertEquals(1, expectResponse.getFieldBookings().size());
         assertEquals(mockBookingRes, expectResponse.getFieldBookings().get(0));
+    }
 
+    @Test
+    public void testSearchWithinCourtPage() {
+        SearchFieldBookingRequest searchRequest = new SearchFieldBookingRequest();
+        searchRequest.setSearchType(SearchFieldBookingRequest.SearchTypeEnum.COURT);
+        searchRequest.setCourtId("1");
+        searchRequest.setTimeFrom("2019-10-06T22:50:15Z");
+        searchRequest.setTimeTo("2019-10-06T22:50:20Z");
+        searchRequest.setPageSize(10);
+        searchRequest.setPage(1);
+
+        Page<FieldBookingDO> pageResponse = mock(Page.class);
+        when(pageResponse.getTotalElements()).thenReturn(100l);
+        when(pageResponse.getTotalPages()).thenReturn(10);
+        when(pageResponse.getNumberOfElements()).thenReturn(10);
+        when(fieldBookingRepository.findByCourtIdWithTimeRange(1L, 1570402215000L, 1570402220000L, PageRequest.of(1, 10))).thenReturn(pageResponse);
+        FieldBookingResponse expectResponse = bookingService.search(searchRequest);
+        assertEquals(10, expectResponse.getPagination().getSize());
+        assertEquals(10, expectResponse.getPagination().getPageCount());
+        assertEquals(100l, expectResponse.getPagination().getTotalCount());
     }
 
     @Test
     public void testSearchWithinCourtFilterMainFieldType() {
         SearchFieldBookingRequest searchRequest = new SearchFieldBookingRequest();
+        searchRequest.setSearchType(SearchFieldBookingRequest.SearchTypeEnum.COURT);
         searchRequest.setCourtId("1");
         searchRequest.setTimeFrom("2019-10-06T22:50:15Z");
         searchRequest.setTimeTo("2019-10-06T22:50:20Z");
@@ -305,6 +325,50 @@ public class BookingServiceImplTest {
         when(fieldBookingDOToResponseConverter.convert(contentList.get(0))).thenReturn(mockBookingRes);
         Page<FieldBookingDO> pageResponse = new PageImpl<>(contentList);
         when(fieldBookingRepository.findByCourtIdAndMainFieldTypeWithTimeRange(1L, 2, 1570402215000L, 1570402220000L, PageRequest.of(1, 10))).thenReturn(pageResponse);
+        FieldBookingResponse expectResponse = bookingService.search(searchRequest);
+        assertEquals(1, expectResponse.getFieldBookings().size());
+        assertEquals(mockBookingRes, expectResponse.getFieldBookings().get(0));
+    }
+
+    @Test
+    public void testSearchWithinCourtByBookerPhone() {
+        SearchFieldBookingRequest searchRequest = new SearchFieldBookingRequest();
+        searchRequest.setSearchType(SearchFieldBookingRequest.SearchTypeEnum.COURT);
+        searchRequest.setCourtId("1");
+        searchRequest.setTimeFrom("2019-10-06T22:50:15Z");
+        searchRequest.setTimeTo("2019-10-06T22:50:20Z");
+        searchRequest.setPageSize(10);
+        searchRequest.setPage(1);
+        searchRequest.setBookerPhone("0908123456");
+
+        List<FieldBookingDO> contentList = new ArrayList<>();
+        contentList.add(mock(FieldBookingDO.class));
+        FieldBooking mockBookingRes = FieldBooking.builder().build();
+        when(fieldBookingDOToResponseConverter.convert(contentList.get(0))).thenReturn(mockBookingRes);
+        Page<FieldBookingDO> pageResponse = new PageImpl<>(contentList);
+        when(fieldBookingRepository.findByCourtIdAndBookerPhoneWithTimeRange(1L, "0908123456", 1570402215000L, 1570402220000L, PageRequest.of(1, 10))).thenReturn(pageResponse);
+        FieldBookingResponse expectResponse = bookingService.search(searchRequest);
+        assertEquals(1, expectResponse.getFieldBookings().size());
+        assertEquals(mockBookingRes, expectResponse.getFieldBookings().get(0));
+    }
+
+    @Test
+    public void testSearchWithinCourtByBookerEmail() {
+        SearchFieldBookingRequest searchRequest = new SearchFieldBookingRequest();
+        searchRequest.setSearchType(SearchFieldBookingRequest.SearchTypeEnum.COURT);
+        searchRequest.setCourtId("1");
+        searchRequest.setTimeFrom("2019-10-06T22:50:15Z");
+        searchRequest.setTimeTo("2019-10-06T22:50:20Z");
+        searchRequest.setPageSize(10);
+        searchRequest.setPage(1);
+        searchRequest.setBookerEmail("a@b.c");
+
+        List<FieldBookingDO> contentList = new ArrayList<>();
+        contentList.add(mock(FieldBookingDO.class));
+        FieldBooking mockBookingRes = FieldBooking.builder().build();
+        when(fieldBookingDOToResponseConverter.convert(contentList.get(0))).thenReturn(mockBookingRes);
+        Page<FieldBookingDO> pageResponse = new PageImpl<>(contentList);
+        when(fieldBookingRepository.findByCourtIdAndBookerEmailWithTimeRange(1L, "a@b.c", 1570402215000L, 1570402220000L, PageRequest.of(1, 10))).thenReturn(pageResponse);
         FieldBookingResponse expectResponse = bookingService.search(searchRequest);
         assertEquals(1, expectResponse.getFieldBookings().size());
         assertEquals(mockBookingRes, expectResponse.getFieldBookings().get(0));

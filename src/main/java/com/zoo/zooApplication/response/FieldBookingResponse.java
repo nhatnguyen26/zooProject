@@ -19,4 +19,7 @@ public class FieldBookingResponse {
 	@ApiModelProperty(value = "The list of fieldBookings", readOnly = true)
 	private List<FieldBooking> fieldBookings;
 
+	@ApiModelProperty(value = "pagination information", readOnly = true)
+	private Pagination pagination;
+
 }

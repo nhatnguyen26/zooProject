@@ -8,6 +8,7 @@ import com.zoo.zooApplication.request.BookingRequest;
 import com.zoo.zooApplication.request.SearchFieldBookingRequest;
 import com.zoo.zooApplication.response.FieldBooking;
 import com.zoo.zooApplication.response.FieldBookingResponse;
+import com.zoo.zooApplication.response.Pagination;
 import com.zoo.zooApplication.service.BookingService;
 import com.zoo.zooApplication.type.MainFieldTypeEnum;
 import com.zoo.zooApplication.util.DateTimeUtil;
@@ -183,24 +184,46 @@ public class BookingServiceImpl implements BookingService {
 	@Override
 	public FieldBookingResponse search(SearchFieldBookingRequest searchRequest) {
 		Long courtId = NumberUtils.toLong(searchRequest.getCourtId());
+		String bookerEmail = searchRequest.getBookerEmail();
+		String bookerPhone = searchRequest.getBookerPhone();
 		Long lowerBound = DateTimeUtil.parseISO8601Format(searchRequest.getTimeFrom()).toInstant().toEpochMilli();
 		Long upperBound = DateTimeUtil.parseISO8601Format(searchRequest.getTimeTo()).toInstant().toEpochMilli();
 		Pageable pageable = searchRequest.getPageable();
 
 		MainFieldTypeEnum mainFieldTypeEnum = searchRequest.getMainFieldType();
 
-		Page<FieldBookingDO> fieldBookingPage = (mainFieldTypeEnum != null) ?
-			fieldBookingRepository.findByCourtIdAndMainFieldTypeWithTimeRange(courtId, mainFieldTypeEnum.getId(), lowerBound, upperBound, pageable) :
-			fieldBookingRepository.findByCourtIdWithTimeRange(courtId, lowerBound, upperBound, pageable);
+		Page<FieldBookingDO> fieldBookingPage = Page.empty();
 
+		if (searchRequest.getSearchHint() != null) {
+			switch (searchRequest.getSearchHint()) {
+				case COURT:
+					fieldBookingPage = fieldBookingRepository.findByCourtIdWithTimeRange(courtId, lowerBound, upperBound, pageable);
+					break;
+				case COURT_FILTER_BY_MAIN_FIELD_TYPE:
+					fieldBookingPage = fieldBookingRepository.findByCourtIdAndMainFieldTypeWithTimeRange(courtId, mainFieldTypeEnum.getId(), lowerBound, upperBound, pageable);
+					break;
+				case COURT_BOOKER_EMAIL:
+					fieldBookingPage = fieldBookingRepository.findByCourtIdAndBookerEmailWithTimeRange(courtId, bookerEmail, lowerBound, upperBound, pageable);
+					break;
+				case COURT_BOOKER_PHONE:
+					fieldBookingPage = fieldBookingRepository.findByCourtIdAndBookerPhoneWithTimeRange(courtId, bookerPhone, lowerBound, upperBound, pageable);
+					break;
+			}
+		}
 
 		List<FieldBooking> fieldBookings = fieldBookingPage.getContent()
 			.stream()
 			.map(fieldBookingDOToResponseConverter::convert)
 			.collect(Collectors.toList());
+		Pagination pagination = Pagination.builder()
+			.totalCount(fieldBookingPage.getTotalElements())
+			.pageCount(fieldBookingPage.getTotalPages())
+			.size(fieldBookingPage.getNumberOfElements())
+			.build();
 		return FieldBookingResponse
 			.builder()
 			.fieldBookings(fieldBookings)
+			.pagination(pagination)
 			.build();
 	}
 
